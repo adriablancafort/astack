@@ -3,7 +3,7 @@ import { drizzleAdapter } from "better-auth/adapters/drizzle"
 import { db } from "../db/client.js"
 import * as schema from "../db/schema.js"
 
-const backendUrl = process.env.BETTER_AUTH_URL ?? "http://localhost:3000"
+const baseURL = process.env.BETTER_AUTH_URL ?? "http://localhost:3000"
 const frontendUrl = process.env.FRONTEND_URL ?? "http://localhost:5173"
 
 export const auth = betterAuth({
@@ -14,6 +14,6 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
   },
-  baseURL: backendUrl,
+  baseURL,
   trustedOrigins: [frontendUrl],
 })
