@@ -40,6 +40,13 @@ import {
 import { Field, FieldError, FieldGroup } from "@workspace/ui/components/field"
 import { Input } from "@workspace/ui/components/input"
 import { Label } from "@workspace/ui/components/label"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@workspace/ui/components/select"
 import { Separator } from "@workspace/ui/components/separator"
 import { SidebarTrigger } from "@workspace/ui/components/sidebar"
 import { toast } from "@workspace/ui/components/sonner"
@@ -421,15 +428,29 @@ export default function TasksPage() {
 
               <Field data-invalid={!!editForm.formState.errors.status}>
                 <Label htmlFor="edit-status">Status</Label>
-                <select
-                  id="edit-status"
-                  className="h-8 rounded-lg border border-input bg-transparent px-2.5 text-sm transition-colors outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
-                  {...editForm.register("status")}
+                <Select
+                  value={editForm.watch("status")}
+                  onValueChange={(value) => {
+                    editForm.setValue(
+                      "status",
+                      value as UpdateTaskInput["status"],
+                      {
+                        shouldDirty: true,
+                        shouldTouch: true,
+                        shouldValidate: true,
+                      }
+                    )
+                  }}
                 >
-                  <option value="todo">To do</option>
-                  <option value="in_progress">In progress</option>
-                  <option value="done">Done</option>
-                </select>
+                  <SelectTrigger id="edit-status" className="w-full">
+                    <SelectValue placeholder="Select status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="todo">To do</SelectItem>
+                    <SelectItem value="in_progress">In progress</SelectItem>
+                    <SelectItem value="done">Done</SelectItem>
+                  </SelectContent>
+                </Select>
                 {editForm.formState.errors.status && (
                   <FieldError errors={[editForm.formState.errors.status]} />
                 )}
