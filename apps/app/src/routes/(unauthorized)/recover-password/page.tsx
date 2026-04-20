@@ -49,7 +49,7 @@ export default function Page() {
         },
         onSuccess: () => {
           toast.success(
-            "If an account exists for that email, a reset link has been sent."
+            "If an account exists for that email, a reset link has been sent"
           )
         },
       }

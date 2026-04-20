@@ -21,7 +21,6 @@ import {
 import { Input } from "@workspace/ui/components/input"
 import { toast } from "@workspace/ui/components/sonner"
 import { signIn } from "@/lib/auth-client"
-import { env } from "@/lib/env"
 
 const signInFormSchema = z.object({
   email: z.email("Enter a valid email address"),

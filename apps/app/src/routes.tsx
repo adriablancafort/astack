@@ -1,11 +1,11 @@
 import { Route, Routes } from "react-router"
-import AuthorizedLayout from "@/routes/(authorized)/layout"
 import SidebarLayout from "@/routes/(authorized)/(sidebar)/layout"
 import HomePage from "@/routes/(authorized)/(sidebar)/page"
+import AuthorizedLayout from "@/routes/(authorized)/layout"
 import UnauthorizedLayout from "@/routes/(unauthorized)/layout"
+import RecoverPasswordPage from "@/routes/(unauthorized)/recover-password/page"
 import SigninPage from "@/routes/(unauthorized)/signin/page"
 import SignupPage from "@/routes/(unauthorized)/signup/page"
-import RecoverPasswordPage from "@/routes/(unauthorized)/recover-password/page"
 
 export function AppRoutes() {
   return (

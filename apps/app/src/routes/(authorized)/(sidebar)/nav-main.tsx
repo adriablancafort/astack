@@ -1,3 +1,4 @@
+import { ChevronRightIcon } from "lucide-react"
 import {
   Collapsible,
   CollapsibleContent,
@@ -13,7 +14,6 @@ import {
   SidebarMenuSubButton,
   SidebarMenuSubItem,
 } from "@workspace/ui/components/sidebar"
-import { ChevronRightIcon } from "lucide-react"
 
 export function NavMain({
   items,
