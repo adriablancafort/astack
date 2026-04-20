@@ -5,8 +5,8 @@ import { BrowserRouter } from "react-router"
 import { Toaster } from "@workspace/ui/components/sonner"
 import { TooltipProvider } from "@workspace/ui/components/tooltip"
 import "@workspace/ui/globals.css"
-import { ThemeProvider } from "@/components/theme-provider.tsx"
-import { AppRoutes } from "@/routes.tsx"
+import { ThemeProvider } from "@/components/theme-provider"
+import { AppRoutes } from "@/routes"
 
 const queryClient = new QueryClient()
 

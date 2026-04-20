@@ -15,6 +15,13 @@
       "when": 1776639024082,
       "tag": "0001_outgoing_lucky_pierre",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1776693571046,
+      "tag": "0002_previous_tinkerer",
+      "breakpoints": true
     }
   ]
 }

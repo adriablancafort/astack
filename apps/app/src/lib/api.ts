@@ -17,6 +17,7 @@ async function request<T>(
 
   const response = await fetch(`${env.API_URL}${path}`, {
     ...options,
+    credentials: "include",
     method,
     headers,
     body: options?.body ? JSON.stringify(options.body) : undefined,
