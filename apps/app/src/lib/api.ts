@@ -1,4 +1,4 @@
-const apiUrl = import.meta.env.VITE_API_URL ?? "http://localhost:3000"
+import { env } from "@/lib/env"
 
 type RequestOptions = {
   headers?: HeadersInit
@@ -15,7 +15,7 @@ async function request<T>(
     headers.set("Content-Type", "application/json")
   }
 
-  const response = await fetch(`${apiUrl}${path}`, {
+  const response = await fetch(`${env.API_URL}${path}`, {
     ...options,
     method,
     headers,
@@ -48,5 +48,3 @@ export const api = {
     return request<T>("DELETE", path, options)
   },
 }
-
-export const API_URL = apiUrl

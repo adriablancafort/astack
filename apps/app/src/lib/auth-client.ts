@@ -1,9 +1,8 @@
 import { createAuthClient } from "better-auth/react"
-
-const baseURL = import.meta.env.VITE_API_URL ?? "http://localhost:3000"
+import { env } from "@/lib/env"
 
 export const authClient = createAuthClient({
-  baseURL,
+  baseURL: env.API_URL,
 })
 
 export const {
