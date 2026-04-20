@@ -8,11 +8,9 @@
     "skipLibCheck": true,
     "strict": true,
     "noEmit": true,
-    "baseUrl": ".",
     "paths": {
       "@workspace/ui/*": ["./src/*"]
     }
   },
-  "include": ["."],
-  "exclude": ["node_modules", "dist"]
+  "include": ["src"]
 }
