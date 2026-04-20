@@ -1,6 +1,7 @@
 import { Route, Routes } from "react-router"
 import AuthorizedLayout from "@/routes/(authorized)/layout"
-import HomePage from "@/routes/(authorized)/page"
+import SidebarLayout from "@/routes/(authorized)/(sidebar)/layout"
+import HomePage from "@/routes/(authorized)/(sidebar)/page"
 import UnauthorizedLayout from "@/routes/(unauthorized)/layout"
 import SigninPage from "@/routes/(unauthorized)/signin/page"
 import SignupPage from "@/routes/(unauthorized)/signup/page"
@@ -10,7 +11,9 @@ export function AppRoutes() {
   return (
     <Routes>
       <Route element={<AuthorizedLayout />}>
-        <Route index element={<HomePage />} />
+        <Route element={<SidebarLayout />}>
+          <Route index element={<HomePage />} />
+        </Route>
       </Route>
 
       <Route element={<UnauthorizedLayout />}>
