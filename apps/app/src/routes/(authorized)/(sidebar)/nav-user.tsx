@@ -1,3 +1,5 @@
+import { useNavigate } from "react-router"
+import { ChevronsUpDownIcon, SparklesIcon, BadgeCheckIcon, CreditCardIcon, BellIcon, LogOutIcon } from "lucide-react"
 import {
   Avatar,
   AvatarFallback,
@@ -18,33 +20,35 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@workspace/ui/components/sidebar"
-import { ChevronsUpDownIcon, SparklesIcon, BadgeCheckIcon, CreditCardIcon, BellIcon, LogOutIcon } from "lucide-react"
-import { signOut } from "@/lib/auth-client"
 import { toast } from "@workspace/ui/components/sonner"
+import { signOut, useSession } from "@/lib/auth-client"
 
-async function handleSignOut() {
-  await signOut({
-    fetchOptions: {
-      onSuccess: () => {
-        toast.success("Signed out successfully")
-      },
-      onError: (ctx) => {
-        toast.error(ctx.error.message)
-      },
-    },
-  })
-}
-
-export function NavUser({
-  user,
-}: {
-  user: {
-    name: string
-    email: string
-    avatar: string
-  }
-}) {
+export function NavUser() {
   const { isMobile } = useSidebar()
+  const navigate = useNavigate()
+  const { data: session } = useSession()
+
+  const user = {
+    name: session?.user?.name || "",
+    email: session?.user?.email || "",
+    avatar: session?.user?.image || "",
+    initials: session?.user?.name?.[0]?.toUpperCase() || "?",
+  }
+
+  async function handleSignOut() {
+    await signOut({
+      fetchOptions: {
+        onSuccess: () => {
+          navigate("/signin")
+          toast.success("Signed out successfully")
+        },
+        onError: (ctx) => {
+          toast.error(ctx.error.message)
+        },
+      },
+    })
+  }
+
   return (
     <SidebarMenu>
       <SidebarMenuItem>
@@ -56,7 +60,7 @@ export function NavUser({
           >
             <Avatar>
               <AvatarImage src={user.avatar} alt={user.name} />
-              <AvatarFallback>CN</AvatarFallback>
+              <AvatarFallback>{user.initials}</AvatarFallback>
             </Avatar>
             <div className="grid flex-1 text-left text-sm leading-tight">
               <span className="truncate font-medium">{user.name}</span>
@@ -75,9 +79,9 @@ export function NavUser({
                 <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                   <Avatar>
                     <AvatarImage src={user.avatar} alt={user.name} />
-                    <AvatarFallback>CN</AvatarFallback>
+                    <AvatarFallback>{user.initials}</AvatarFallback>
                   </Avatar>
-                  <div className="grid flex-1 text-left text-sm leading-tight">
+                  <div className="text-foreground grid flex-1 text-left text-sm leading-tight">
                     <span className="truncate font-medium">{user.name}</span>
                     <span className="truncate text-xs">{user.email}</span>
                   </div>
