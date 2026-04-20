@@ -3,7 +3,7 @@
   "type": "module",
   "scripts": {
     "dev": "tsx watch src/index.ts",
-    "build": "tsc",
+    "build": "rm -rf dist && rollup -c",
     "start": "node dist/index.js",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
@@ -19,11 +19,15 @@
   },
   "dependencies": {
     "@hono/node-server": "^1.19.14",
+    "@rollup/plugin-node-resolve": "^16.0.3",
+    "@rollup/plugin-terser": "^1.0.0",
+    "@rollup/plugin-typescript": "^12.3.0",
     "better-auth": "^1.6.5",
     "dotenv": "^17.4.2",
     "drizzle-orm": "^0.45.2",
     "hono": "^4.12.14",
-    "pg": "^8.20.0"
+    "pg": "^8.20.0",
+    "rollup": "^4.60.2"
   },
   "devDependencies": {
     "@types/node": "^20.11.17",
