@@ -1,5 +1,8 @@
-dist/
-node_modules/
-coverage/
+node_modules
+dist
+
+drizzle
+
+coverage
+
 pnpm-lock.yaml
-.pnpm-store/

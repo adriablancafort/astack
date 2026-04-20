@@ -2,9 +2,24 @@
   "name": "astack",
   "version": "0.0.1",
   "private": true,
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
   "devDependencies": {
     "prettier": "^3.8.1",
     "prettier-plugin-tailwindcss": "^0.7.2",
     "typescript": "5.9.3"
+  },
+  "dependencies": {
+    "@eslint/js": "^9.39.3",
+    "@trivago/prettier-plugin-sort-imports": "^6.0.2",
+    "eslint": "^9.39.3",
+    "eslint-plugin-react-hooks": "^7.0.1",
+    "eslint-plugin-react-refresh": "^0.4.26",
+    "globals": "^17.3.0",
+    "typescript-eslint": "^8.56.1"
   }
 }
