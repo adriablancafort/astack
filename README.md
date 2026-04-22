@@ -100,6 +100,14 @@ The boilerplate already includes auth tables and a simple task resource so there
 - database persistence
 - React Query data fetching and mutations
 
+## Scaffolding
+
+The fastest way to start a new AStack project is with the [create-astack](https://www.npmjs.com/package/create-astack) package:
+
+```bash
+pnpm create astack
+```
+
 ## Setup
 
 ### 1. Install dependencies
