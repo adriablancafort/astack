@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm"
-import { db } from "@/db/client"
-import { task, user } from "@/db/schema"
+import { db } from "@workspace/db/client"
+import { task, user } from "@workspace/db/schema"
 
 const DEMO_USER = {
   id: "demo-user",

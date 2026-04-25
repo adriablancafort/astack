@@ -1,5 +1,7 @@
 import { and, desc, eq } from "drizzle-orm"
 import { Hono } from "hono"
+import { db } from "@workspace/db/client"
+import { task } from "@workspace/db/schema"
 import {
   createTaskInputSchema,
   deleteTaskResponseSchema,
@@ -8,8 +10,6 @@ import {
   taskResponseSchema,
   updateTaskInputSchema,
 } from "@workspace/shared/api/tasks"
-import { db } from "@/db/client"
-import { task } from "@/db/schema"
 import { auth } from "@/lib/auth"
 
 export const tasks = new Hono()
