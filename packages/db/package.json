@@ -17,6 +17,8 @@
     "seed": "tsx scripts/seed.ts"
   },
   "exports": {
+    "./client": "./src/client.ts",
+    "./schema": "./src/schema/index.ts",
     "./*": "./src/*.ts"
   },
   "dependencies": {
