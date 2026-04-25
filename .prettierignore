@@ -1,6 +1,8 @@
 node_modules
 dist
 
+index.html
+
 drizzle
 
 coverage
