@@ -1,4 +1,5 @@
 import { Route, Routes } from "react-router"
+import PageNotFound from "@/routes/(authorized)/(sidebar)/[...all]/page"
 import SidebarLayout from "@/routes/(authorized)/(sidebar)/layout"
 import HomePage from "@/routes/(authorized)/(sidebar)/page"
 import TasksPage from "@/routes/(authorized)/(sidebar)/tasks/page"
@@ -21,6 +22,7 @@ export function AppRoutes() {
         <Route element={<SidebarLayout />}>
           <Route index element={<HomePage />} />
           <Route path="/tasks" element={<TasksPage />} />
+          <Route path="*" element={<PageNotFound />} />
         </Route>
       </Route>
 
