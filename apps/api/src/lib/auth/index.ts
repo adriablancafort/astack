@@ -13,6 +13,13 @@ export const auth = betterAuth({
   }),
   emailAndPassword: {
     enabled: true,
+    async sendResetPassword(data) {
+      console.log("send-reset-password-email", {
+        to: data.user.email,
+        name: data.user.name,
+        url: data.url,
+      })
+    },
   },
   databaseHooks,
   baseURL: env.API_URL,

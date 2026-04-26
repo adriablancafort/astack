@@ -5,7 +5,8 @@ import TasksPage from "@/routes/(authorized)/(sidebar)/tasks/page"
 import CreateOrganizationPage from "@/routes/(authorized)/create-organization/page"
 import AuthorizedLayout from "@/routes/(authorized)/layout"
 import UnauthorizedLayout from "@/routes/(unauthorized)/layout"
-import RecoverPasswordPage from "@/routes/(unauthorized)/recover-password/page"
+import ResetPasswordPage from "@/routes/(unauthorized)/reset-password/page"
+import SetNewPasswordPage from "@/routes/(unauthorized)/set-new-password/page"
 import SigninPage from "@/routes/(unauthorized)/signin/page"
 import SignupPage from "@/routes/(unauthorized)/signup/page"
 
@@ -26,7 +27,8 @@ export function AppRoutes() {
       <Route element={<UnauthorizedLayout />}>
         <Route path="/signin" element={<SigninPage />} />
         <Route path="/signup" element={<SignupPage />} />
-        <Route path="/recover-password" element={<RecoverPasswordPage />} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
+        <Route path="/set-new-password" element={<SetNewPasswordPage />} />
       </Route>
     </Routes>
   )

@@ -13,7 +13,6 @@ import {
 } from "@workspace/ui/components/card"
 import {
   Field,
-  FieldDescription,
   FieldError,
   FieldGroup,
   FieldLabel,
@@ -22,14 +21,14 @@ import { Input } from "@workspace/ui/components/input"
 import { toast } from "@workspace/ui/components/sonner"
 import { signIn } from "@/lib/auth-client"
 
-const signInFormSchema = z.object({
-  email: z.email("Enter a valid email address"),
-  password: z.string().min(8, "Password must be at least 8 characters"),
-})
-
-type SignInFormValues = z.infer<typeof signInFormSchema>
-
 export default function Page() {
+  const signInFormSchema = z.object({
+    email: z.email("Enter a valid email address"),
+    password: z.string().min(8, "Password must be at least 8 characters"),
+  })
+
+  type SignInFormValues = z.infer<typeof signInFormSchema>
+
   const form = useForm<SignInFormValues>({
     resolver: zodResolver(signInFormSchema),
     defaultValues: {
@@ -60,9 +59,9 @@ export default function Page() {
     <div className="flex h-screen w-full items-center justify-center p-6">
       <Card className="w-full max-w-sm">
         <CardHeader>
-          <CardTitle>Sign into your account</CardTitle>
+          <CardTitle className="text-2xl">Sign in</CardTitle>
           <CardDescription>
-            Enter your email below to sign into your account
+            Enter your email and password below to sign in
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -97,8 +96,8 @@ export default function Page() {
                     <div className="flex items-center">
                       <FieldLabel htmlFor={field.name}>Password</FieldLabel>
                       <Link
-                        to="/recover-password"
-                        className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
+                        to="/reset-password"
+                        className="ml-auto inline-block text-sm underline underline-offset-3"
                       >
                         Forgot your password?
                       </Link>
@@ -117,19 +116,22 @@ export default function Page() {
                 )}
               />
 
-              <Field>
-                <Button type="submit" disabled={form.formState.isSubmitting}>
-                  {form.formState.isSubmitting ? (
-                    <Loader2Icon className="size-4 animate-spin" />
-                  ) : (
-                    "Sign in"
-                  )}
-                </Button>
+              <Button type="submit" disabled={form.formState.isSubmitting}>
+                {form.formState.isSubmitting ? (
+                  <Loader2Icon className="size-4 animate-spin" />
+                ) : (
+                  "Sign in"
+                )}
+              </Button>
 
-                <FieldDescription className="pt-2 text-center">
-                  Don't have an account? <Link to="/signup">Sign up</Link>
-                </FieldDescription>
-              </Field>
+              <div className="text-center text-sm">
+                <span className="text-muted-foreground">
+                  Don't have an account?{" "}
+                </span>
+                <Link to="/signup" className="underline underline-offset-3">
+                  Sign up
+                </Link>
+              </div>
             </FieldGroup>
           </form>
         </CardContent>

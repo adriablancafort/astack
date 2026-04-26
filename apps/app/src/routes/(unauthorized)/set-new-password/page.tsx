@@ -1,7 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Loader2Icon } from "lucide-react"
 import { Controller, useForm } from "react-hook-form"
-import { Link } from "react-router"
+import { Link, useNavigate, useSearchParams } from "react-router"
 import * as z from "zod"
 import { Button } from "@workspace/ui/components/button"
 import {
@@ -19,13 +19,15 @@ import {
 } from "@workspace/ui/components/field"
 import { Input } from "@workspace/ui/components/input"
 import { toast } from "@workspace/ui/components/sonner"
-import { signUp } from "@/lib/auth-client"
+import { resetPassword } from "@/lib/auth-client"
 
 export default function Page() {
-  const signUpFormSchema = z
+  const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  const token = searchParams.get("token")
+
+  const setNewPasswordFormSchema = z
     .object({
-      name: z.string().trim().min(1, "Name is required"),
-      email: z.email("Enter a valid email address"),
       password: z
         .string()
         .min(8, "Password must be at least 8 characters")
@@ -39,97 +41,56 @@ export default function Page() {
       path: ["confirmPassword"],
     })
 
-  type SignUpFormValues = z.infer<typeof signUpFormSchema>
+  type SetNewPasswordFormValues = z.infer<typeof setNewPasswordFormSchema>
 
-  const form = useForm<SignUpFormValues>({
-    resolver: zodResolver(signUpFormSchema),
+  const form = useForm<SetNewPasswordFormValues>({
+    resolver: zodResolver(setNewPasswordFormSchema),
     defaultValues: {
-      name: "",
-      email: "",
       password: "",
       confirmPassword: "",
     },
   })
 
-  async function onSubmit(values: SignUpFormValues) {
-    await signUp.email(
-      {
-        name: values.name,
-        email: values.email,
-        password: values.password,
-      },
-      {
-        onError: (ctx) => {
-          toast.error(ctx.error.message)
-        },
-        onSuccess: () => {
-          toast.success("Account created")
-          // Reset organizations client state
-          window.location.assign("/create-organization")
-        },
-      }
-    )
+  async function onSubmit(values: SetNewPasswordFormValues) {
+    if (!token) {
+      toast.error("Invalid or missing reset token")
+      return
+    }
+
+    const result = await resetPassword({
+      newPassword: values.password,
+      token,
+    })
+
+    if (result.error) {
+      toast.error(result.error.message)
+      return
+    }
+
+    toast.success("New password set")
+    navigate("/signin")
+  }
+
+  if (!token) {
+    return null
   }
 
   return (
     <div className="flex h-screen w-full items-center justify-center p-6">
       <Card className="w-full max-w-sm">
         <CardHeader>
-          <CardTitle className="text-2xl">Sign up</CardTitle>
-          <CardDescription>
-            Enter your information below to sign up
-          </CardDescription>
+          <CardTitle className="text-2xl">Set new password</CardTitle>
+          <CardDescription>Enter your new password below</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={form.handleSubmit(onSubmit)} noValidate>
             <FieldGroup>
               <Controller
-                name="name"
-                control={form.control}
-                render={({ field, fieldState }) => (
-                  <Field data-invalid={fieldState.invalid}>
-                    <FieldLabel htmlFor={field.name}>Name</FieldLabel>
-                    <Input
-                      {...field}
-                      id={field.name}
-                      placeholder="John Doe"
-                      autoComplete="name"
-                      aria-invalid={fieldState.invalid}
-                    />
-                    {fieldState.invalid && (
-                      <FieldError errors={[fieldState.error]} />
-                    )}
-                  </Field>
-                )}
-              />
-
-              <Controller
-                name="email"
-                control={form.control}
-                render={({ field, fieldState }) => (
-                  <Field data-invalid={fieldState.invalid}>
-                    <FieldLabel htmlFor={field.name}>Email</FieldLabel>
-                    <Input
-                      {...field}
-                      id={field.name}
-                      type="email"
-                      placeholder="mail@example.com"
-                      autoComplete="email"
-                      aria-invalid={fieldState.invalid}
-                    />
-                    {fieldState.invalid && (
-                      <FieldError errors={[fieldState.error]} />
-                    )}
-                  </Field>
-                )}
-              />
-
-              <Controller
                 name="password"
                 control={form.control}
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid}>
-                    <FieldLabel htmlFor={field.name}>Password</FieldLabel>
+                    <FieldLabel htmlFor={field.name}>New Password</FieldLabel>
                     <Input
                       {...field}
                       id={field.name}
@@ -170,13 +131,13 @@ export default function Page() {
                 {form.formState.isSubmitting ? (
                   <Loader2Icon className="size-4 animate-spin" />
                 ) : (
-                  "Sign up"
+                  "Set new password"
                 )}
               </Button>
 
               <div className="text-center text-sm">
                 <span className="text-muted-foreground">
-                  Already have an account?{" "}
+                  Already remember it?{" "}
                 </span>
                 <Link to="/signin" className="underline underline-offset-3">
                   Sign in

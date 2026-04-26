@@ -13,7 +13,6 @@ import {
 } from "@workspace/ui/components/card"
 import {
   Field,
-  FieldDescription,
   FieldError,
   FieldGroup,
   FieldLabel,
@@ -23,13 +22,13 @@ import { toast } from "@workspace/ui/components/sonner"
 import { requestPasswordReset } from "@/lib/auth-client"
 import { env } from "@/lib/env"
 
-const recoverPasswordFormSchema = z.object({
-  email: z.email("Enter a valid email address"),
-})
-
-type RecoverPasswordFormValues = z.infer<typeof recoverPasswordFormSchema>
-
 export default function Page() {
+  const recoverPasswordFormSchema = z.object({
+    email: z.email("Enter a valid email address"),
+  })
+
+  type RecoverPasswordFormValues = z.infer<typeof recoverPasswordFormSchema>
+
   const form = useForm<RecoverPasswordFormValues>({
     resolver: zodResolver(recoverPasswordFormSchema),
     defaultValues: {
@@ -41,7 +40,7 @@ export default function Page() {
     await requestPasswordReset(
       {
         email: values.email,
-        redirectTo: `${env.FRONTEND_URL}/signin`,
+        redirectTo: `${env.FRONTEND_URL}/set-new-password`,
       },
       {
         onError: (ctx) => {
@@ -51,6 +50,7 @@ export default function Page() {
           toast.success(
             "If an account exists for that email, a reset link has been sent"
           )
+          form.reset()
         },
       }
     )
@@ -60,9 +60,9 @@ export default function Page() {
     <div className="flex h-screen w-full items-center justify-center p-6">
       <Card className="w-full max-w-sm">
         <CardHeader>
-          <CardTitle>Recover your password</CardTitle>
+          <CardTitle className="text-2xl">Reset password</CardTitle>
           <CardDescription>
-            Enter your email to receive a reset link
+            Enter your email below to receive a password reset link
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -89,19 +89,22 @@ export default function Page() {
                 )}
               />
 
-              <Field>
-                <Button type="submit" disabled={form.formState.isSubmitting}>
-                  {form.formState.isSubmitting ? (
-                    <Loader2Icon className="size-4 animate-spin" />
-                  ) : (
-                    "Send reset link"
-                  )}
-                </Button>
+              <Button type="submit" disabled={form.formState.isSubmitting}>
+                {form.formState.isSubmitting ? (
+                  <Loader2Icon className="size-4 animate-spin" />
+                ) : (
+                  "Send reset link"
+                )}
+              </Button>
 
-                <FieldDescription className="pt-2 text-center">
-                  Back to <Link to="/signin">Sign in</Link>
-                </FieldDescription>
-              </Field>
+              <div className="text-center text-sm">
+                <span className="text-muted-foreground">
+                  Already remember it?{" "}
+                </span>
+                <Link to="/signin" className="underline underline-offset-3">
+                  Sign in
+                </Link>
+              </div>
             </FieldGroup>
           </form>
         </CardContent>

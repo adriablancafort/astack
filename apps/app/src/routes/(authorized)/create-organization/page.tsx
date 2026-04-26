@@ -20,13 +20,13 @@ import { Input } from "@workspace/ui/components/input"
 import { toast } from "@workspace/ui/components/sonner"
 import { organization } from "@/lib/auth-client"
 
-const createOrganizationSchema = z.object({
-  name: z.string().trim().min(1, "Organization name is required"),
-})
-
-type CreateOrganizationFormValues = z.infer<typeof createOrganizationSchema>
-
 export default function Page() {
+  const createOrganizationSchema = z.object({
+    name: z.string().trim().min(1, "Organization name is required"),
+  })
+
+  type CreateOrganizationFormValues = z.infer<typeof createOrganizationSchema>
+
   const form = useForm<CreateOrganizationFormValues>({
     resolver: zodResolver(createOrganizationSchema),
     defaultValues: {
