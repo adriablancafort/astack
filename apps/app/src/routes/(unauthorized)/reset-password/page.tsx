@@ -43,14 +43,14 @@ export default function Page() {
         redirectTo: `${env.FRONTEND_URL}/set-new-password`,
       },
       {
-        onError: (ctx) => {
-          toast.error(ctx.error.message)
-        },
         onSuccess: () => {
           toast.success(
             "If an account exists for that email, a reset link has been sent"
           )
           form.reset()
+        },
+        onError: (ctx) => {
+          toast.error(ctx.error.message)
         },
       }
     )

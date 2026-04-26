@@ -10,7 +10,6 @@ import {
   SparklesIcon,
   SunIcon,
 } from "lucide-react"
-import { useNavigate } from "react-router"
 import {
   Avatar,
   AvatarFallback,
@@ -41,9 +40,8 @@ import { useTheme } from "@/providers/theme-provider"
 
 export function NavUser() {
   const { isMobile } = useSidebar()
-  const navigate = useNavigate()
-  const { data: session } = useSession()
   const { theme, setTheme } = useTheme()
+  const { data: session } = useSession()
 
   const user = {
     name: session?.user?.name || "",
@@ -56,7 +54,7 @@ export function NavUser() {
     await signOut({
       fetchOptions: {
         onSuccess: () => {
-          navigate("/signin")
+          window.location.assign("/signin")
         },
         onError: (ctx) => {
           toast.error(ctx.error.message)

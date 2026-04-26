@@ -1,7 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Loader2Icon } from "lucide-react"
 import { Controller, useForm } from "react-hook-form"
-import { Link } from "react-router"
+import { Link, useNavigate } from "react-router"
 import * as z from "zod"
 import { Button } from "@workspace/ui/components/button"
 import {
@@ -22,6 +22,8 @@ import { toast } from "@workspace/ui/components/sonner"
 import { signIn } from "@/lib/auth-client"
 
 export default function Page() {
+  const navigate = useNavigate()
+
   const signInFormSchema = z.object({
     email: z.email("Enter a valid email address"),
     password: z.string().min(8, "Password must be at least 8 characters"),
@@ -44,12 +46,11 @@ export default function Page() {
         password: values.password,
       },
       {
+        onSuccess: async () => {
+          navigate("/")
+        },
         onError: (ctx) => {
           toast.error(ctx.error.message)
-        },
-        onSuccess: () => {
-          // Reset organizations client state
-          window.location.assign("/")
         },
       }
     )

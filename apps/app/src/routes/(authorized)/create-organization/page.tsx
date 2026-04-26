@@ -1,6 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Loader2Icon } from "lucide-react"
 import { Controller, useForm } from "react-hook-form"
+import { useNavigate } from "react-router"
 import * as z from "zod"
 import { Button } from "@workspace/ui/components/button"
 import {
@@ -21,6 +22,8 @@ import { toast } from "@workspace/ui/components/sonner"
 import { organization } from "@/lib/auth-client"
 
 export default function Page() {
+  const navigate = useNavigate()
+
   const createOrganizationSchema = z.object({
     name: z.string().trim().min(1, "Organization name is required"),
   })
@@ -42,13 +45,12 @@ export default function Page() {
         keepCurrentActiveOrganization: false,
       },
       {
-        onError: (ctx) => {
-          toast.error(ctx.error.message)
-        },
         onSuccess: () => {
           toast.success("Organization created")
-          // Reset organizations client state
-          window.location.assign("/")
+          navigate("/")
+        },
+        onError: (ctx) => {
+          toast.error(ctx.error.message)
         },
       }
     )
@@ -60,7 +62,7 @@ export default function Page() {
         <CardHeader>
           <CardTitle>Create organization</CardTitle>
           <CardDescription>
-            Enter your organization name below to create your organization
+            Enter a name below to create an organization
           </CardDescription>
         </CardHeader>
         <CardContent>

@@ -1,7 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Loader2Icon } from "lucide-react"
 import { Controller, useForm } from "react-hook-form"
-import { Link } from "react-router"
+import { Link, useNavigate } from "react-router"
 import * as z from "zod"
 import { Button } from "@workspace/ui/components/button"
 import {
@@ -22,6 +22,8 @@ import { toast } from "@workspace/ui/components/sonner"
 import { signUp } from "@/lib/auth-client"
 
 export default function Page() {
+  const navigate = useNavigate()
+
   const signUpFormSchema = z
     .object({
       name: z.string().trim().min(1, "Name is required"),
@@ -59,13 +61,12 @@ export default function Page() {
         password: values.password,
       },
       {
-        onError: (ctx) => {
-          toast.error(ctx.error.message)
-        },
         onSuccess: () => {
           toast.success("Account created")
-          // Reset organizations client state
-          window.location.assign("/create-organization")
+          navigate("/create-organization")
+        },
+        onError: (ctx) => {
+          toast.error(ctx.error.message)
         },
       }
     )

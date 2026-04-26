@@ -32,8 +32,8 @@ export function NavOrganization() {
   const { data: organizations } = useListOrganizations()
   const organizationName = activeOrganization?.name || "Loading..."
 
-  function handleSetActiveOrganization(organizationId: string) {
-    organization.setActive(
+  async function handleSetActiveOrganization(organizationId: string) {
+    await organization.setActive(
       {
         organizationId,
       },
