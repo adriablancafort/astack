@@ -1,10 +1,14 @@
 import {
   BadgeCheckIcon,
   BellIcon,
+  CheckIcon,
   ChevronsUpDownIcon,
   CreditCardIcon,
   LogOutIcon,
+  MonitorIcon,
+  MoonIcon,
   SparklesIcon,
+  SunIcon,
 } from "lucide-react"
 import { useNavigate } from "react-router"
 import {
@@ -18,7 +22,11 @@ import {
   DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
+  DropdownMenuPortal,
   DropdownMenuSeparator,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@workspace/ui/components/dropdown-menu"
 import {
@@ -29,11 +37,13 @@ import {
 } from "@workspace/ui/components/sidebar"
 import { toast } from "@workspace/ui/components/sonner"
 import { signOut, useSession } from "@/lib/auth-client"
+import { useTheme } from "@/providers/theme-provider"
 
 export function NavUser() {
   const { isMobile } = useSidebar()
   const navigate = useNavigate()
   const { data: session } = useSession()
+  const { theme, setTheme } = useTheme()
 
   const user = {
     name: session?.user?.name || "",
@@ -116,6 +126,34 @@ export function NavUser() {
                 Notifications
               </DropdownMenuItem>
             </DropdownMenuGroup>
+            <DropdownMenuSeparator />
+            <DropdownMenuSub>
+              <DropdownMenuSubTrigger>
+                {theme === "light" && <SunIcon />}
+                {theme === "dark" && <MoonIcon />}
+                {theme === "system" && <MonitorIcon />}
+                Theme
+              </DropdownMenuSubTrigger>
+              <DropdownMenuPortal>
+                <DropdownMenuSubContent className="w-30">
+                  <DropdownMenuItem onClick={() => setTheme("light")}>
+                    <SunIcon />
+                    Light
+                    {theme === "light" && <CheckIcon className="ml-auto" />}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setTheme("dark")}>
+                    <MoonIcon />
+                    Dark
+                    {theme === "dark" && <CheckIcon className="ml-auto" />}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setTheme("system")}>
+                    <MonitorIcon />
+                    System
+                    {theme === "system" && <CheckIcon className="ml-auto" />}
+                  </DropdownMenuItem>
+                </DropdownMenuSubContent>
+              </DropdownMenuPortal>
+            </DropdownMenuSub>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={handleSignOut}>
               <LogOutIcon />
