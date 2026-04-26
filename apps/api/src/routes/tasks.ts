@@ -33,25 +33,25 @@ function toNullableDescription(value: string | undefined) {
   return value.length > 0 ? value : null
 }
 
-async function getUserId(request: Request) {
+async function getActiveOrganizationId(request: Request) {
   const session = await auth.api.getSession({
     headers: request.headers,
   })
 
-  return session?.user.id ?? null
+  return session?.session.activeOrganizationId ?? null
 }
 
 tasks.get("/", async (c) => {
-  const userId = await getUserId(c.req.raw)
+  const organizationId = await getActiveOrganizationId(c.req.raw)
 
-  if (!userId) {
+  if (!organizationId) {
     return c.json({ error: "Unauthorized" }, 401)
   }
 
   const records = await db
     .select()
     .from(task)
-    .where(eq(task.userId, userId))
+    .where(eq(task.organizationId, organizationId))
     .orderBy(desc(task.createdAt))
 
   return c.json(
@@ -62,9 +62,9 @@ tasks.get("/", async (c) => {
 })
 
 tasks.post("/", async (c) => {
-  const userId = await getUserId(c.req.raw)
+  const organizationId = await getActiveOrganizationId(c.req.raw)
 
-  if (!userId) {
+  if (!organizationId) {
     return c.json({ error: "Unauthorized" }, 401)
   }
 
@@ -85,7 +85,7 @@ tasks.post("/", async (c) => {
       title: parsed.data.title,
       description: toNullableDescription(parsed.data.description),
       status: parsed.data.status,
-      userId,
+      organizationId,
     })
     .returning()
 
@@ -96,9 +96,9 @@ tasks.post("/", async (c) => {
 })
 
 tasks.patch("/:taskId", async (c) => {
-  const userId = await getUserId(c.req.raw)
+  const organizationId = await getActiveOrganizationId(c.req.raw)
 
-  if (!userId) {
+  if (!organizationId) {
     return c.json({ error: "Unauthorized" }, 401)
   }
 
@@ -138,7 +138,12 @@ tasks.patch("/:taskId", async (c) => {
   const [updatedTask] = await db
     .update(task)
     .set(updateValues)
-    .where(and(eq(task.id, params.data.taskId), eq(task.userId, userId)))
+    .where(
+      and(
+        eq(task.id, params.data.taskId),
+        eq(task.organizationId, organizationId)
+      )
+    )
     .returning()
 
   if (!updatedTask) {
@@ -149,9 +154,9 @@ tasks.patch("/:taskId", async (c) => {
 })
 
 tasks.delete("/:taskId", async (c) => {
-  const userId = await getUserId(c.req.raw)
+  const organizationId = await getActiveOrganizationId(c.req.raw)
 
-  if (!userId) {
+  if (!organizationId) {
     return c.json({ error: "Unauthorized" }, 401)
   }
 
@@ -166,7 +171,12 @@ tasks.delete("/:taskId", async (c) => {
 
   const [deletedTask] = await db
     .delete(task)
-    .where(and(eq(task.id, params.data.taskId), eq(task.userId, userId)))
+    .where(
+      and(
+        eq(task.id, params.data.taskId),
+        eq(task.organizationId, organizationId)
+      )
+    )
     .returning({ id: task.id })
 
   if (!deletedTask) {

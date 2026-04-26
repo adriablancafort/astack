@@ -1,7 +1,9 @@
 import { betterAuth } from "better-auth"
 import { drizzleAdapter } from "better-auth/adapters/drizzle"
+import { organization } from "better-auth/plugins"
 import { db } from "@workspace/db/client"
 import * as schema from "@workspace/db/schema"
+import { databaseHooks } from "@/lib/auth/database-hooks"
 import { env } from "@/lib/env"
 
 export const auth = betterAuth({
@@ -12,6 +14,8 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
   },
+  databaseHooks,
   baseURL: env.API_URL,
   trustedOrigins: [env.FRONTEND_URL],
+  plugins: [organization()],
 })

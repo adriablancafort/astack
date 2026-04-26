@@ -1,6 +1,15 @@
 import { eq } from "drizzle-orm"
 import { db } from "@workspace/db/client"
-import { task, user } from "@workspace/db/schema"
+import {
+  account,
+  invitation,
+  member,
+  organization,
+  session,
+  task,
+  user,
+  verification,
+} from "@workspace/db/schema"
 
 const DEMO_USER = {
   id: "demo-user",
@@ -8,6 +17,12 @@ const DEMO_USER = {
   email: "demo@example.com",
   image: "",
   emailVerified: true,
+} as const
+
+const DEMO_ORGANIZATION = {
+  id: "demo-org",
+  name: "Demo Workspace",
+  slug: "demo-workspace",
 } as const
 
 const DEMO_TASKS = [
@@ -37,6 +52,15 @@ async function seed() {
   console.log("Seeding database...")
 
   await db.transaction(async (tx) => {
+    await tx.delete(task)
+    await tx.delete(invitation)
+    await tx.delete(member)
+    await tx.delete(session)
+    await tx.delete(account)
+    await tx.delete(verification)
+    await tx.delete(organization)
+    await tx.delete(user)
+
     await tx
       .insert(user)
       .values(DEMO_USER)
@@ -51,7 +75,22 @@ async function seed() {
         },
       })
 
-    await tx.delete(task).where(eq(task.userId, DEMO_USER.id))
+    await tx.insert(organization).values({
+      id: DEMO_ORGANIZATION.id,
+      name: DEMO_ORGANIZATION.name,
+      slug: DEMO_ORGANIZATION.slug,
+      logo: null,
+      createdAt: new Date(),
+      metadata: null,
+    })
+
+    await tx.insert(member).values({
+      id: crypto.randomUUID(),
+      organizationId: DEMO_ORGANIZATION.id,
+      userId: DEMO_USER.id,
+      role: "owner",
+      createdAt: new Date(),
+    })
 
     await tx.insert(task).values(
       DEMO_TASKS.map((demoTask) => ({
@@ -59,13 +98,20 @@ async function seed() {
         title: demoTask.title,
         description: demoTask.description,
         status: demoTask.status,
-        userId: DEMO_USER.id,
+        organizationId: DEMO_ORGANIZATION.id,
       }))
     )
+
+    await tx
+      .update(session)
+      .set({
+        activeOrganizationId: DEMO_ORGANIZATION.id,
+      })
+      .where(eq(session.userId, DEMO_USER.id))
   })
 
   console.log(
-    `Seed complete: created demo user (${DEMO_USER.email}) and ${DEMO_TASKS.length} tasks.`
+    `Seed complete: created demo user (${DEMO_USER.email}), organization (${DEMO_ORGANIZATION.slug}), and ${DEMO_TASKS.length} tasks.`
   )
 }
 

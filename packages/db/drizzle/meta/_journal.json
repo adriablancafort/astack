@@ -22,6 +22,13 @@
       "when": 1776693571046,
       "tag": "0002_previous_tinkerer",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1777133849868,
+      "tag": "0003_bored_freak",
+      "breakpoints": true
     }
   ]
 }

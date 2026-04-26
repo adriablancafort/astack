@@ -1,7 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Loader2Icon } from "lucide-react"
 import { Controller, useForm } from "react-hook-form"
-import { Link, useNavigate } from "react-router"
+import { Link } from "react-router"
 import * as z from "zod"
 import { Button } from "@workspace/ui/components/button"
 import {
@@ -30,7 +30,6 @@ const signInFormSchema = z.object({
 type SignInFormValues = z.infer<typeof signInFormSchema>
 
 export default function Page() {
-  const navigate = useNavigate()
   const form = useForm<SignInFormValues>({
     resolver: zodResolver(signInFormSchema),
     defaultValues: {
@@ -50,8 +49,8 @@ export default function Page() {
           toast.error(ctx.error.message)
         },
         onSuccess: () => {
-          toast.success("Signed in successfully")
-          navigate("/")
+          // Reset organizations client state
+          window.location.assign("/")
         },
       }
     )

@@ -1,10 +1,4 @@
-import {
-  AudioLinesIcon,
-  GalleryVerticalEndIcon,
-  LayoutDashboardIcon,
-  ListTodoIcon,
-  TerminalIcon,
-} from "lucide-react"
+import { LayoutDashboardIcon, ListTodoIcon } from "lucide-react"
 import * as React from "react"
 import { Link, useLocation } from "react-router"
 import {
@@ -19,27 +13,10 @@ import {
   SidebarMenuItem,
   SidebarRail,
 } from "@workspace/ui/components/sidebar"
+import { NavOrganization } from "./nav-organization"
 import { NavUser } from "./nav-user"
-import { TeamSwitcher } from "./team-switcher"
 
 const data = {
-  teams: [
-    {
-      name: "Acme Inc",
-      logo: <GalleryVerticalEndIcon />,
-      plan: "Enterprise",
-    },
-    {
-      name: "Acme Corp.",
-      logo: <AudioLinesIcon />,
-      plan: "Startup",
-    },
-    {
-      name: "Evil Corp.",
-      logo: <TerminalIcon />,
-      plan: "Free",
-    },
-  ],
   navMain: [
     {
       title: "Dashboard",
@@ -60,7 +37,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
-        <TeamSwitcher teams={data.teams} />
+        <NavOrganization />
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>

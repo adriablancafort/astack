@@ -47,7 +47,6 @@ export function NavUser() {
       fetchOptions: {
         onSuccess: () => {
           navigate("/signin")
-          toast.success("Signed out successfully")
         },
         onError: (ctx) => {
           toast.error(ctx.error.message)
@@ -120,7 +119,7 @@ export function NavUser() {
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={handleSignOut}>
               <LogOutIcon />
-              Log out
+              Sign out
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

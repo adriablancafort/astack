@@ -1,7 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Loader2Icon } from "lucide-react"
 import { Controller, useForm } from "react-hook-form"
-import { Link, useNavigate } from "react-router"
+import { Link } from "react-router"
 import * as z from "zod"
 import { Button } from "@workspace/ui/components/button"
 import {
@@ -37,7 +37,6 @@ const signUpFormSchema = z
 type SignUpFormValues = z.infer<typeof signUpFormSchema>
 
 export default function Page() {
-  const navigate = useNavigate()
   const form = useForm<SignUpFormValues>({
     resolver: zodResolver(signUpFormSchema),
     defaultValues: {
@@ -60,8 +59,9 @@ export default function Page() {
           toast.error(ctx.error.message)
         },
         onSuccess: () => {
-          toast.success("Account created successfully")
-          navigate("/")
+          toast.success("Account created")
+          // Reset organizations client state
+          window.location.assign("/create-organization")
         },
       }
     )
