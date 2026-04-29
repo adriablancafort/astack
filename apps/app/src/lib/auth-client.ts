@@ -8,11 +8,17 @@ export const authClient = createAuthClient({
 })
 
 export const {
+  changeEmail,
+  changePassword,
+  deleteUser,
+  listAccounts,
+  unlinkAccount,
   signIn,
   signOut,
   signUp,
   resetPassword,
   requestPasswordReset,
+  updateUser,
   useSession,
   organization,
   useActiveOrganization,

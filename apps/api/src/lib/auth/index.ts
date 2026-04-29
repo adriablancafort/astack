@@ -21,6 +21,11 @@ export const auth = betterAuth({
       })
     },
   },
+  user: {
+    deleteUser: {
+      enabled: true,
+    },
+  },
   databaseHooks,
   baseURL: env.API_URL,
   trustedOrigins: [env.FRONTEND_URL],
