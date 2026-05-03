@@ -60,8 +60,6 @@ import {
 } from "@workspace/ui/components/table"
 import { api } from "@/lib/api"
 
-const tasksQueryKey = ["tasks"] as const
-
 type CreateTaskFormValues = z.input<typeof createTaskInputSchema>
 
 const statusLabels: Record<Task["status"], string> = {
@@ -146,7 +144,7 @@ export default function TasksPage() {
   })
 
   const tasksQuery = useQuery({
-    queryKey: tasksQueryKey,
+    queryKey: ["tasks"],
     queryFn: () => api.get<ListTasksResponse>("/api/tasks"),
   })
 
@@ -161,7 +159,7 @@ export default function TasksPage() {
         status: "todo",
       })
       setIsCreateOpen(false)
-      void queryClient.invalidateQueries({ queryKey: tasksQueryKey })
+      queryClient.invalidateQueries({ queryKey: ["tasks"] })
     },
     onError: (error) => {
       toast.error(error.message)
@@ -183,7 +181,7 @@ export default function TasksPage() {
     onSuccess: () => {
       toast.success("Task updated")
       setEditingTask(null)
-      void queryClient.invalidateQueries({ queryKey: tasksQueryKey })
+      queryClient.invalidateQueries({ queryKey: ["tasks"] })
     },
     onError: (error) => {
       toast.error(error.message)
@@ -195,7 +193,7 @@ export default function TasksPage() {
       api.delete<DeleteTaskResponse>(`/api/tasks/${id}`),
     onSuccess: () => {
       toast.success("Task deleted")
-      void queryClient.invalidateQueries({ queryKey: tasksQueryKey })
+      queryClient.invalidateQueries({ queryKey: ["tasks"] })
     },
     onError: (error) => {
       toast.error(error.message)
