@@ -1,7 +1,11 @@
-import { Navigate, Outlet } from "react-router"
+import { createFileRoute, Navigate, Outlet } from "@tanstack/react-router"
 import { useSession } from "@/lib/auth-client"
 
-export default function Layout() {
+export const Route = createFileRoute("/(unauthorized)")({
+  component: Layout,
+})
+
+function Layout() {
   const { data: session, isPending } = useSession()
 
   if (isPending) {

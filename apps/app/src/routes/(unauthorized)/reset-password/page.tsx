@@ -1,7 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod"
+import { createFileRoute, Link } from "@tanstack/react-router"
 import { Loader2Icon } from "lucide-react"
 import { Controller, useForm } from "react-hook-form"
-import { Link } from "react-router"
 import * as z from "zod"
 import { Button } from "@workspace/ui/components/button"
 import {
@@ -22,7 +22,11 @@ import { toast } from "@workspace/ui/components/sonner"
 import { requestPasswordReset } from "@/lib/auth-client"
 import { env } from "@/lib/env"
 
-export default function Page() {
+export const Route = createFileRoute("/(unauthorized)/reset-password/")({
+  component: Page,
+})
+
+function Page() {
   const recoverPasswordFormSchema = z.object({
     email: z.email("Enter a valid email address"),
   })

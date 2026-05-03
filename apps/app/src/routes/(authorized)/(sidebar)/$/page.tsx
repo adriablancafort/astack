@@ -1,5 +1,5 @@
+import { createFileRoute, Link } from "@tanstack/react-router"
 import { Search } from "lucide-react"
-import { Link } from "react-router"
 import { Button } from "@workspace/ui/components/button"
 import {
   Empty,
@@ -10,7 +10,11 @@ import {
   EmptyTitle,
 } from "@workspace/ui/components/empty"
 
-export default function Page() {
+export const Route = createFileRoute("/(authorized)/(sidebar)/$/")({
+  component: Page,
+})
+
+function Page() {
   return (
     <Empty className="mx-auto max-w-md">
       <EmptyHeader>

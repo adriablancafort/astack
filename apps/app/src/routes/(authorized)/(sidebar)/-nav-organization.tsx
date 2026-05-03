@@ -1,6 +1,6 @@
 import { useQueryClient } from "@tanstack/react-query"
+import { Navigate, useNavigate } from "@tanstack/react-router"
 import { ChevronsUpDownIcon, PlusIcon } from "lucide-react"
-import { Navigate, useNavigate } from "react-router"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -49,7 +49,7 @@ export function NavOrganization() {
   }
 
   function handleAddOrganization() {
-    navigate("/create-organization")
+    navigate({ to: "/create-organization" })
   }
 
   if (!isActiveOrganizationPending && !activeOrganization) {

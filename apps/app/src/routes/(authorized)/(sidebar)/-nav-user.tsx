@@ -1,3 +1,4 @@
+import { Link, useNavigate } from "@tanstack/react-router"
 import {
   CheckIcon,
   ChevronsUpDownIcon,
@@ -7,7 +8,6 @@ import {
   SunIcon,
   UserIcon,
 } from "lucide-react"
-import { Link } from "react-router"
 import {
   Avatar,
   AvatarFallback,
@@ -37,6 +37,7 @@ import { signOut, useSession } from "@/lib/auth-client"
 import { useTheme } from "@/providers/theme-provider"
 
 export function NavUser() {
+  const navigate = useNavigate()
   const { isMobile } = useSidebar()
   const { theme, setTheme } = useTheme()
   const { data: session } = useSession()
@@ -52,7 +53,7 @@ export function NavUser() {
     await signOut({
       fetchOptions: {
         onSuccess: () => {
-          window.location.assign("/signin")
+          navigate({ to: "/signin" })
         },
         onError: (ctx) => {
           toast.error(ctx.error.message)

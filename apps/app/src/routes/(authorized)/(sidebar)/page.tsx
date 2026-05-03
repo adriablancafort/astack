@@ -1,3 +1,4 @@
+import { createFileRoute } from "@tanstack/react-router"
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -9,7 +10,11 @@ import {
 import { Separator } from "@workspace/ui/components/separator"
 import { SidebarTrigger } from "@workspace/ui/components/sidebar"
 
-export default function Page() {
+export const Route = createFileRoute("/(authorized)/(sidebar)/")({
+  component: Page,
+})
+
+function Page() {
   return (
     <div className="flex h-screen flex-col">
       <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">

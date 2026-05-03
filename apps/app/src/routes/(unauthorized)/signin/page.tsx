@@ -1,7 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod"
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router"
 import { Loader2Icon } from "lucide-react"
 import { Controller, useForm } from "react-hook-form"
-import { Link, useNavigate } from "react-router"
 import * as z from "zod"
 import { Button } from "@workspace/ui/components/button"
 import {
@@ -21,7 +21,11 @@ import { Input } from "@workspace/ui/components/input"
 import { toast } from "@workspace/ui/components/sonner"
 import { signIn } from "@/lib/auth-client"
 
-export default function Page() {
+export const Route = createFileRoute("/(unauthorized)/signin/")({
+  component: Page,
+})
+
+function Page() {
   const navigate = useNavigate()
 
   const signInFormSchema = z.object({
@@ -47,7 +51,7 @@ export default function Page() {
       },
       {
         onSuccess: async () => {
-          navigate("/")
+          navigate({ to: "/" })
         },
         onError: (ctx) => {
           toast.error(ctx.error.message)

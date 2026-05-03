@@ -1,8 +1,12 @@
-import { Outlet } from "react-router"
+import { createFileRoute, Outlet } from "@tanstack/react-router"
 import { SidebarInset, SidebarProvider } from "@workspace/ui/components/sidebar"
-import { AppSidebar } from "./app-sidebar"
+import { AppSidebar } from "./-app-sidebar"
 
-export default function Page() {
+export const Route = createFileRoute("/(authorized)/(sidebar)")({
+  component: Layout,
+})
+
+function Layout() {
   return (
     <SidebarProvider>
       <AppSidebar />

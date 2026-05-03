@@ -1,3 +1,4 @@
+import { createFileRoute } from "@tanstack/react-router"
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -7,11 +8,17 @@ import {
 } from "@workspace/ui/components/breadcrumb"
 import { Separator } from "@workspace/ui/components/separator"
 import { SidebarTrigger } from "@workspace/ui/components/sidebar"
-import { DeleteAccountForm } from "./delete-user-form"
-import { AccountPasswordForm } from "./password-form"
-import { UserInformationForm } from "./user-information-form"
+import { DeleteAccountForm } from "./-delete-user-form"
+import { AccountPasswordForm } from "./-password-form"
+import { UserInformationForm } from "./-user-information-form"
 
-export default function AccountSettingsPage() {
+export const Route = createFileRoute(
+  "/(authorized)/(sidebar)/settings/account/"
+)({
+  component: Page,
+})
+
+function Page() {
   return (
     <div>
       <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">

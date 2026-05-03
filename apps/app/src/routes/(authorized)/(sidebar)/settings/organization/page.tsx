@@ -1,3 +1,4 @@
+import { createFileRoute } from "@tanstack/react-router"
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -9,8 +10,14 @@ import { Separator } from "@workspace/ui/components/separator"
 import { SidebarTrigger } from "@workspace/ui/components/sidebar"
 import { Skeleton } from "@workspace/ui/components/skeleton"
 import { useActiveOrganization } from "@/lib/auth-client"
-import { DeleteOrganizationForm } from "./delete-organization-form"
-import { OrganizationInformationForm } from "./organization-information-form"
+import { DeleteOrganizationForm } from "./-delete-organization-form"
+import { OrganizationInformationForm } from "./-organization-information-form"
+
+export const Route = createFileRoute(
+  "/(authorized)/(sidebar)/settings/organization/"
+)({
+  component: Page,
+})
 
 type OrganizationSettingsData = {
   id: string
@@ -19,7 +26,7 @@ type OrganizationSettingsData = {
   members: Array<{ user: { id: string }; role: string }>
 }
 
-export default function OrganizationSettingsPage() {
+function Page() {
   const { data: activeOrganization, isPending: isOrganizationPending } =
     useActiveOrganization()
 

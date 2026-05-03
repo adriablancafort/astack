@@ -1,6 +1,6 @@
+import { Link, useLocation } from "@tanstack/react-router"
 import { LayoutDashboardIcon, ListTodoIcon } from "lucide-react"
 import * as React from "react"
-import { Link, useLocation } from "react-router"
 import {
   Sidebar,
   SidebarContent,
@@ -13,8 +13,8 @@ import {
   SidebarMenuItem,
   SidebarRail,
 } from "@workspace/ui/components/sidebar"
-import { NavOrganization } from "./nav-organization"
-import { NavUser } from "./nav-user"
+import { NavOrganization } from "./-nav-organization"
+import { NavUser } from "./-nav-user"
 
 const data = {
   navMain: [

@@ -1,5 +1,11 @@
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import {
+  queryOptions,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query"
+import { createFileRoute } from "@tanstack/react-router"
 import {
   type ColumnDef,
   flexRender,
@@ -59,6 +65,17 @@ import {
   TableRow,
 } from "@workspace/ui/components/table"
 import { api } from "@/lib/api"
+
+const tasksQueryOptions = queryOptions({
+  queryKey: ["tasks"],
+  queryFn: () => api.get<ListTasksResponse>("/api/tasks"),
+})
+
+export const Route = createFileRoute("/(authorized)/(sidebar)/tasks/")({
+  loader: ({ context: { queryClient } }) =>
+    queryClient.ensureQueryData(tasksQueryOptions),
+  component: Page,
+})
 
 type CreateTaskFormValues = z.input<typeof createTaskInputSchema>
 
@@ -128,7 +145,7 @@ function DataTable<TData, TValue>({
   )
 }
 
-export default function TasksPage() {
+function Page() {
   const queryClient = useQueryClient()
   const [isCreateOpen, setIsCreateOpen] = useState(false)
   const [editingTask, setEditingTask] = useState<Task | null>(null)
@@ -144,8 +161,7 @@ export default function TasksPage() {
   })
 
   const tasksQuery = useQuery({
-    queryKey: ["tasks"],
-    queryFn: () => api.get<ListTasksResponse>("/api/tasks"),
+    ...tasksQueryOptions,
   })
 
   const createTaskMutation = useMutation({

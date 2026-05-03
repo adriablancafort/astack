@@ -1,7 +1,12 @@
 import { zodResolver } from "@hookform/resolvers/zod"
+import {
+  createFileRoute,
+  Link,
+  useLocation,
+  useNavigate,
+} from "@tanstack/react-router"
 import { Loader2Icon } from "lucide-react"
 import { Controller, useForm } from "react-hook-form"
-import { Link, useNavigate, useSearchParams } from "react-router"
 import * as z from "zod"
 import { Button } from "@workspace/ui/components/button"
 import {
@@ -21,10 +26,14 @@ import { Input } from "@workspace/ui/components/input"
 import { toast } from "@workspace/ui/components/sonner"
 import { resetPassword } from "@/lib/auth-client"
 
-export default function Page() {
+export const Route = createFileRoute("/(unauthorized)/set-new-password/")({
+  component: Page,
+})
+
+function Page() {
   const navigate = useNavigate()
-  const [searchParams] = useSearchParams()
-  const token = searchParams.get("token")
+  const location = useLocation()
+  const token = new URLSearchParams(location.search).get("token")
 
   const setNewPasswordFormSchema = z
     .object({
@@ -68,7 +77,7 @@ export default function Page() {
     }
 
     toast.success("New password set")
-    navigate("/signin")
+    navigate({ to: "/signin" })
   }
 
   if (!token) {
