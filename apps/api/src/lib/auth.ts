@@ -1,9 +1,10 @@
 import { betterAuth } from "better-auth"
 import { drizzleAdapter } from "better-auth/adapters/drizzle"
 import { organization } from "better-auth/plugins"
+import { eq } from "drizzle-orm"
 import { db } from "@workspace/db/client"
 import * as schema from "@workspace/db/schema"
-import { databaseHooks } from "@/lib/auth/database-hooks"
+import { member } from "@workspace/db/schema"
 import { env } from "@/lib/env"
 
 export const auth = betterAuth({
@@ -26,7 +27,29 @@ export const auth = betterAuth({
       enabled: true,
     },
   },
-  databaseHooks,
+  databaseHooks: {
+    session: {
+      create: {
+        before: async (session) => {
+          const [organization] = await db
+            .select({ id: member.organizationId })
+            .from(member)
+            .where(eq(member.userId, session.userId))
+            .limit(1)
+
+          return {
+            data: {
+              ...session,
+              activeOrganizationId: organization?.id,
+            },
+          }
+        },
+      },
+    },
+  },
+  telemetry: {
+    enabled: false,
+  },
   baseURL: env.API_URL,
   trustedOrigins: [env.FRONTEND_URL],
   plugins: [organization()],
