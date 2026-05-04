@@ -15,7 +15,7 @@ The repo is intentionally small and direct. It is meant to be a starting point y
 
 ## Stack
 
-- Frontend: Vite, React, React Router, React Query, React Hook Form
+- Frontend: Vite, React, TanStack Router, React Query, React Hook Form
 - Backend: Hono, Better Auth, Drizzle ORM, PostgreSQL
 - Shared contracts: Zod + TypeScript in `packages/shared`
 - UI: shared component package in `packages/ui`
@@ -26,9 +26,10 @@ The repo is intentionally small and direct. It is meant to be a starting point y
 ```text
 .
 ├── apps/
-│   ├── api/      # Hono API, Drizzle schema, Better Auth, database access
+│   ├── api/      # Hono API and Better Auth integration
 │   └── app/      # Vite React SPA
 ├── packages/
+│   ├── db/       # Drizzle ORM schema, migrations, and db client
 │   ├── shared/   # Shared Zod schemas and TS types used by app + api
 │   └── ui/       # Shared UI components and global styles
 ├── package.json
@@ -41,8 +42,8 @@ The repo is intentionally small and direct. It is meant to be a starting point y
 
 The SPA lives in `apps/app`.
 
-- `src/main.tsx` wires React Query, theme support, tooltips, routing, and toasts.
-- `src/routes.tsx` defines the app routes and splits them into authorized and unauthorized areas.
+- `src/main.tsx` wires React Query, theme support, tooltips, TanStack Router, and toasts.
+- `src/routes/` contains file-based routes split into authorized and unauthorized areas.
 - `src/lib/api.ts` is a lightweight fetch wrapper to interact with the API.
 - `src/lib/auth-client.ts` exposes the Better Auth React client.
 
@@ -52,9 +53,9 @@ The frontend talks to the backend over HTTP and relies on shared Zod schemas fro
 
 The API lives in `apps/api`.
 
-- `src/index.ts` boots the Hono server, enables CORS, mounts Better Auth under `/api/auth/*`, and mounts feature routes under `/api/*`.
+- `src/index.ts` boots the Hono server.
+- `src/api.ts` creates the Hono app, enables CORS and logging, mounts Better Auth under `/api/auth/*`, and mounts feature routes under `/api/*`.
 - `src/lib/auth.ts` configures Better Auth using the Drizzle adapter.
-- `src/db/schema.ts` contains the database schema.
 - `src/routes/tasks.ts` shows the intended pattern: validate input with shared Zod schemas, read the authenticated user from Better Auth, then query the database with Drizzle.
 
 ### Shared Contracts
@@ -88,10 +89,10 @@ The current boilerplate is already wired for email/password auth.
 
 Drizzle is used as the ORM and schema source of truth.
 
-- schema definition: `apps/api/src/db/schema.ts`
-- database client: `apps/api/src/db/client.ts`
-- Drizzle config: `apps/api/drizzle.config.ts`
-- generated migrations: `apps/api/drizzle/`
+- schema definition: `packages/db/src/schema/`
+- database client: `packages/db/src/client.ts`
+- Drizzle config: `packages/db/drizzle.config.ts`
+- generated migrations: `packages/db/drizzle/`
 
 The boilerplate already includes auth tables and a simple task resource so there is an end-to-end example of:
 
@@ -137,16 +138,16 @@ VITE_API_URL=http://localhost:3000
 
 ### 3. Prepare the database
 
-Run the Drizzle migration command from the API workspace:
+Run the Drizzle migration command from the database workspace:
 
 ```bash
-pnpm --filter api db:migrate
+pnpm --filter @workspace/db migrate
 ```
 
 If you prefer syncing the schema directly during early development:
 
 ```bash
-pnpm --filter api db:push
+pnpm --filter @workspace/db push
 ```
 
 ### 4. Start the apps
