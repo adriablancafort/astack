@@ -1,5 +1,6 @@
 import { cva, type VariantProps } from "class-variance-authority"
 import { useMemo } from "react"
+
 import { Label } from "@workspace/ui/components/label"
 import { Separator } from "@workspace/ui/components/separator"
 import { cn } from "@workspace/ui/lib/utils"
@@ -223,13 +224,13 @@ function FieldError({
 
 export {
   Field,
-  FieldLabel,
+  FieldContent,
   FieldDescription,
   FieldError,
   FieldGroup,
+  FieldLabel,
   FieldLegend,
   FieldSeparator,
   FieldSet,
-  FieldContent,
   FieldTitle,
 }
