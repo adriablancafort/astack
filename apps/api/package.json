@@ -10,18 +10,18 @@
     "format": "biome check --write --linter-enabled=false ."
   },
   "dependencies": {
-    "@hono/node-server": "^1.19.14",
+    "@hono/node-server": "^2.0.8",
     "@workspace/db": "workspace:*",
     "@workspace/shared": "workspace:*",
-    "better-auth": "^1.6.5",
-    "dotenv": "^17.4.2",
-    "drizzle-orm": "^0.45.2",
-    "hono": "^4.12.14"
+    "better-auth": "catalog:",
+    "dotenv": "catalog:",
+    "drizzle-orm": "catalog:",
+    "hono": "^4.12.27"
   },
   "devDependencies": {
-    "@types/node": "^25.1.0",
-    "rolldown": "1.0.0-rc.16",
-    "tsx": "^4.7.1",
-    "typescript": "^5.9.3"
+    "@types/node": "catalog:",
+    "rolldown": "^1.1.4",
+    "tsx": "catalog:",
+    "typescript": "catalog:"
   }
 }

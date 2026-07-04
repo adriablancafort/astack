@@ -21,15 +21,15 @@
   },
   "dependencies": {
     "@workspace/shared": "workspace:*",
-    "dotenv": "^17.4.2",
-    "drizzle-orm": "^0.45.2",
-    "pg": "^8.20.0"
+    "dotenv": "catalog:",
+    "drizzle-orm": "catalog:",
+    "pg": "^8.22.0"
   },
   "devDependencies": {
-    "@types/node": "^25.1.0",
+    "@types/node": "catalog:",
     "@types/pg": "^8.20.0",
     "drizzle-kit": "^0.31.10",
-    "tsx": "^4.7.1",
-    "typescript": "^5.9.3"
+    "tsx": "catalog:",
+    "typescript": "catalog:"
   }
 }

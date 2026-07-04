@@ -8,7 +8,7 @@
     "format": "biome check --write --linter-enabled=false ."
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.5.2",
-    "typescript": "5.9.3"
+    "@biomejs/biome": "catalog:",
+    "typescript": "catalog:"
   }
 }
