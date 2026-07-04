@@ -14,7 +14,7 @@ import type {
   Task,
   TaskResponse,
 } from "@workspace/shared/api/tasks/types"
-import { auth } from "@/lib/auth"
+import { requireOrganization } from "@/lib/organization"
 import { validator } from "@/lib/validator"
 
 export const tasks = new Hono()
@@ -38,20 +38,8 @@ function toNullableDescription(value: string | undefined) {
   return value.length > 0 ? value : null
 }
 
-async function getActiveOrganizationId(request: Request) {
-  const session = await auth.api.getSession({
-    headers: request.headers,
-  })
-
-  return session?.session.activeOrganizationId ?? null
-}
-
-tasks.get("/", async (c) => {
-  const organizationId = await getActiveOrganizationId(c.req.raw)
-
-  if (!organizationId) {
-    return c.json({ error: "Unauthorized" }, 401)
-  }
+tasks.get("/", requireOrganization, async (c) => {
+  const organizationId = c.get("organizationId")
 
   const records = await db
     .select()
@@ -62,40 +50,36 @@ tasks.get("/", async (c) => {
   return c.json({ tasks: records.map(toTask) } satisfies ListTasksResponse)
 })
 
-tasks.post("/", validator("json", createTaskRequestSchema), async (c) => {
-  const organizationId = await getActiveOrganizationId(c.req.raw)
+tasks.post(
+  "/",
+  requireOrganization,
+  validator("json", createTaskRequestSchema),
+  async (c) => {
+    const organizationId = c.get("organizationId")
+    const payload = c.req.valid("json")
 
-  if (!organizationId) {
-    return c.json({ error: "Unauthorized" }, 401)
+    const [createdTask] = await db
+      .insert(task)
+      .values({
+        id: crypto.randomUUID(),
+        title: payload.title,
+        description: toNullableDescription(payload.description),
+        status: payload.status,
+        organizationId,
+      })
+      .returning()
+
+    return c.json({ task: toTask(createdTask) } satisfies TaskResponse, 201)
   }
-
-  const payload = c.req.valid("json")
-
-  const [createdTask] = await db
-    .insert(task)
-    .values({
-      id: crypto.randomUUID(),
-      title: payload.title,
-      description: toNullableDescription(payload.description),
-      status: payload.status,
-      organizationId,
-    })
-    .returning()
-
-  return c.json({ task: toTask(createdTask) } satisfies TaskResponse, 201)
-})
+)
 
 tasks.patch(
   "/:taskId",
+  requireOrganization,
   validator("param", taskIdParamRequestSchema),
   validator("json", updateTaskRequestSchema),
   async (c) => {
-    const organizationId = await getActiveOrganizationId(c.req.raw)
-
-    if (!organizationId) {
-      return c.json({ error: "Unauthorized" }, 401)
-    }
-
+    const organizationId = c.get("organizationId")
     const params = c.req.valid("param")
     const payload = c.req.valid("json")
 
@@ -131,14 +115,10 @@ tasks.patch(
 
 tasks.delete(
   "/:taskId",
+  requireOrganization,
   validator("param", taskIdParamRequestSchema),
   async (c) => {
-    const organizationId = await getActiveOrganizationId(c.req.raw)
-
-    if (!organizationId) {
-      return c.json({ error: "Unauthorized" }, 401)
-    }
-
+    const organizationId = c.get("organizationId")
     const params = c.req.valid("param")
 
     const [deletedTask] = await db
