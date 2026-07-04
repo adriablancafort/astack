@@ -9,6 +9,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "catalog:",
-    "typescript": "catalog:"
+    "typescript": "catalog:",
+    "zod": "catalog:"
   }
 }

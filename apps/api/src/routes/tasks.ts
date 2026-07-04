@@ -4,26 +4,30 @@ import { Hono } from "hono"
 import { db } from "@workspace/db/client"
 import { task } from "@workspace/db/schema"
 import {
-  createTaskInputSchema,
-  deleteTaskResponseSchema,
-  listTasksResponseSchema,
-  taskParamsSchema,
-  taskResponseSchema,
-  updateTaskInputSchema,
-} from "@workspace/shared/api/tasks"
+  createTaskRequestSchema,
+  taskIdParamRequestSchema,
+  updateTaskRequestSchema,
+} from "@workspace/shared/api/tasks/schemas"
+import type {
+  DeleteTaskResponse,
+  ListTasksResponse,
+  Task,
+  TaskResponse,
+} from "@workspace/shared/api/tasks/types"
 import { auth } from "@/lib/auth"
+import { validator } from "@/lib/validator"
 
 export const tasks = new Hono()
 
-function toTaskResponse(row: typeof task.$inferSelect) {
-  return taskResponseSchema.shape.task.parse({
+function toTask(row: typeof task.$inferSelect): Task {
+  return {
     id: row.id,
     title: row.title,
     description: row.description,
     status: row.status,
     createdAt: row.createdAt.toISOString(),
     updatedAt: row.updatedAt.toISOString(),
-  })
+  }
 }
 
 function toNullableDescription(value: string | undefined) {
@@ -55,134 +59,99 @@ tasks.get("/", async (c) => {
     .where(eq(task.organizationId, organizationId))
     .orderBy(desc(task.createdAt))
 
-  return c.json(
-    listTasksResponseSchema.parse({
-      tasks: records.map(toTaskResponse),
-    })
-  )
+  return c.json({ tasks: records.map(toTask) } satisfies ListTasksResponse)
 })
 
-tasks.post("/", async (c) => {
+tasks.post("/", validator("json", createTaskRequestSchema), async (c) => {
   const organizationId = await getActiveOrganizationId(c.req.raw)
 
   if (!organizationId) {
     return c.json({ error: "Unauthorized" }, 401)
   }
 
-  const payload = await c.req.json().catch(() => null)
-  const parsed = createTaskInputSchema.safeParse(payload)
-
-  if (!parsed.success) {
-    return c.json(
-      { error: parsed.error.issues[0]?.message ?? "Invalid task" },
-      400
-    )
-  }
+  const payload = c.req.valid("json")
 
   const [createdTask] = await db
     .insert(task)
     .values({
       id: crypto.randomUUID(),
-      title: parsed.data.title,
-      description: toNullableDescription(parsed.data.description),
-      status: parsed.data.status,
+      title: payload.title,
+      description: toNullableDescription(payload.description),
+      status: payload.status,
       organizationId,
     })
     .returning()
 
-  return c.json(
-    taskResponseSchema.parse({ task: toTaskResponse(createdTask) }),
-    201
-  )
+  return c.json({ task: toTask(createdTask) } satisfies TaskResponse, 201)
 })
 
-tasks.patch("/:taskId", async (c) => {
-  const organizationId = await getActiveOrganizationId(c.req.raw)
+tasks.patch(
+  "/:taskId",
+  validator("param", taskIdParamRequestSchema),
+  validator("json", updateTaskRequestSchema),
+  async (c) => {
+    const organizationId = await getActiveOrganizationId(c.req.raw)
 
-  if (!organizationId) {
-    return c.json({ error: "Unauthorized" }, 401)
-  }
+    if (!organizationId) {
+      return c.json({ error: "Unauthorized" }, 401)
+    }
 
-  const params = taskParamsSchema.safeParse(c.req.param())
+    const params = c.req.valid("param")
+    const payload = c.req.valid("json")
 
-  if (!params.success) {
-    return c.json(
-      { error: params.error.issues[0]?.message ?? "Invalid task id" },
-      400
-    )
-  }
+    const updateValues: Partial<typeof task.$inferInsert> = {}
 
-  const payload = await c.req.json().catch(() => null)
-  const parsed = updateTaskInputSchema.safeParse(payload)
+    if (payload.title !== undefined) {
+      updateValues.title = payload.title
+    }
 
-  if (!parsed.success) {
-    return c.json(
-      { error: parsed.error.issues[0]?.message ?? "Invalid task" },
-      400
-    )
-  }
+    if (payload.description !== undefined) {
+      updateValues.description = toNullableDescription(payload.description)
+    }
 
-  const updateValues: Partial<typeof task.$inferInsert> = {}
+    if (payload.status !== undefined) {
+      updateValues.status = payload.status
+    }
 
-  if (parsed.data.title !== undefined) {
-    updateValues.title = parsed.data.title
-  }
-
-  if (parsed.data.description !== undefined) {
-    updateValues.description = toNullableDescription(parsed.data.description)
-  }
-
-  if (parsed.data.status !== undefined) {
-    updateValues.status = parsed.data.status
-  }
-
-  const [updatedTask] = await db
-    .update(task)
-    .set(updateValues)
-    .where(
-      and(
-        eq(task.id, params.data.taskId),
-        eq(task.organizationId, organizationId)
+    const [updatedTask] = await db
+      .update(task)
+      .set(updateValues)
+      .where(
+        and(eq(task.id, params.taskId), eq(task.organizationId, organizationId))
       )
-    )
-    .returning()
+      .returning()
 
-  if (!updatedTask) {
-    return c.json({ error: "Task not found" }, 404)
+    if (!updatedTask) {
+      return c.json({ error: "Task not found" }, 404)
+    }
+
+    return c.json({ task: toTask(updatedTask) } satisfies TaskResponse)
   }
+)
 
-  return c.json(taskResponseSchema.parse({ task: toTaskResponse(updatedTask) }))
-})
+tasks.delete(
+  "/:taskId",
+  validator("param", taskIdParamRequestSchema),
+  async (c) => {
+    const organizationId = await getActiveOrganizationId(c.req.raw)
 
-tasks.delete("/:taskId", async (c) => {
-  const organizationId = await getActiveOrganizationId(c.req.raw)
+    if (!organizationId) {
+      return c.json({ error: "Unauthorized" }, 401)
+    }
 
-  if (!organizationId) {
-    return c.json({ error: "Unauthorized" }, 401)
-  }
+    const params = c.req.valid("param")
 
-  const params = taskParamsSchema.safeParse(c.req.param())
-
-  if (!params.success) {
-    return c.json(
-      { error: params.error.issues[0]?.message ?? "Invalid task id" },
-      400
-    )
-  }
-
-  const [deletedTask] = await db
-    .delete(task)
-    .where(
-      and(
-        eq(task.id, params.data.taskId),
-        eq(task.organizationId, organizationId)
+    const [deletedTask] = await db
+      .delete(task)
+      .where(
+        and(eq(task.id, params.taskId), eq(task.organizationId, organizationId))
       )
-    )
-    .returning({ id: task.id })
+      .returning({ id: task.id })
 
-  if (!deletedTask) {
-    return c.json({ error: "Task not found" }, 404)
+    if (!deletedTask) {
+      return c.json({ error: "Task not found" }, 404)
+    }
+
+    return c.json({ success: true } satisfies DeleteTaskResponse)
   }
-
-  return c.json(deleteTaskResponseSchema.parse({ success: true }))
-})
+)

@@ -15,18 +15,19 @@ import {
 import { Loader2Icon, PlusIcon } from "lucide-react"
 import { useMemo, useState } from "react"
 import { useForm } from "react-hook-form"
-import { z } from "zod"
 
 import {
-  type CreateTaskInput,
-  createTaskInputSchema,
-  type DeleteTaskResponse,
-  type ListTasksResponse,
-  type Task,
-  type TaskResponse,
-  type UpdateTaskInput,
-  updateTaskInputSchema,
-} from "@workspace/shared/api/tasks"
+  createTaskRequestSchema,
+  updateTaskRequestSchema,
+} from "@workspace/shared/api/tasks/schemas"
+import type {
+  CreateTaskRequest,
+  DeleteTaskResponse,
+  ListTasksResponse,
+  Task,
+  TaskResponse,
+  UpdateTaskRequest,
+} from "@workspace/shared/api/tasks/types"
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -78,15 +79,11 @@ export const Route = createFileRoute("/(authorized)/(sidebar)/tasks/")({
   component: Page,
 })
 
-type CreateTaskFormValues = z.input<typeof createTaskInputSchema>
-
 const statusLabels: Record<Task["status"], string> = {
   todo: "To do",
   in_progress: "In progress",
   done: "Done",
 }
-
-type EditTaskFormValues = z.input<typeof updateTaskInputSchema>
 
 type DataTableProps<TData, TValue> = {
   columns: ColumnDef<TData, TValue>[]
@@ -152,8 +149,8 @@ function Page() {
   const [editingTask, setEditingTask] = useState<Task | null>(null)
   const [search, setSearch] = useState("")
 
-  const form = useForm<CreateTaskFormValues, unknown, CreateTaskInput>({
-    resolver: zodResolver(createTaskInputSchema),
+  const form = useForm<CreateTaskRequest>({
+    resolver: zodResolver(createTaskRequestSchema),
     defaultValues: {
       title: "",
       description: "",
@@ -166,7 +163,7 @@ function Page() {
   })
 
   const createTaskMutation = useMutation({
-    mutationFn: (payload: CreateTaskInput) =>
+    mutationFn: (payload: CreateTaskRequest) =>
       api.post<TaskResponse>("/api/tasks", { body: payload }),
     onSuccess: () => {
       toast.success("Task created")
@@ -183,8 +180,8 @@ function Page() {
     },
   })
 
-  const editForm = useForm<EditTaskFormValues, unknown, UpdateTaskInput>({
-    resolver: zodResolver(updateTaskInputSchema),
+  const editForm = useForm<UpdateTaskRequest>({
+    resolver: zodResolver(updateTaskRequestSchema),
     defaultValues: {
       title: "",
       description: "",
@@ -193,7 +190,7 @@ function Page() {
   })
 
   const updateTaskMutation = useMutation({
-    mutationFn: ({ id, payload }: { id: string; payload: UpdateTaskInput }) =>
+    mutationFn: ({ id, payload }: { id: string; payload: UpdateTaskRequest }) =>
       api.patch<TaskResponse>(`/api/tasks/${id}`, { body: payload }),
     onSuccess: () => {
       toast.success("Task updated")
@@ -291,18 +288,6 @@ function Page() {
       )
     : allTasks
 
-  function onSubmit(values: CreateTaskInput) {
-    createTaskMutation.mutate(values)
-  }
-
-  function onEditSubmit(values: UpdateTaskInput) {
-    if (!editingTask) {
-      return
-    }
-
-    updateTaskMutation.mutate({ id: editingTask.id, payload: values })
-  }
-
   return (
     <div className="flex min-h-screen flex-col">
       <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
@@ -338,7 +323,12 @@ function Page() {
                 New task
               </DialogTrigger>
               <DialogContent className="sm:max-w-sm">
-                <form onSubmit={form.handleSubmit(onSubmit)} noValidate>
+                <form
+                  onSubmit={form.handleSubmit((values) =>
+                    createTaskMutation.mutate(values)
+                  )}
+                  noValidate
+                >
                   <DialogHeader>
                     <DialogTitle>Create task</DialogTitle>
                     <DialogDescription>
@@ -411,7 +401,16 @@ function Page() {
         }}
       >
         <DialogContent className="sm:max-w-sm">
-          <form onSubmit={editForm.handleSubmit(onEditSubmit)} noValidate>
+          <form
+            onSubmit={editForm.handleSubmit((values) => {
+              if (!editingTask) {
+                return
+              }
+
+              updateTaskMutation.mutate({ id: editingTask.id, payload: values })
+            })}
+            noValidate
+          >
             <DialogHeader>
               <DialogTitle>Edit task</DialogTitle>
               <DialogDescription>
@@ -448,7 +447,7 @@ function Page() {
                   onValueChange={(value) => {
                     editForm.setValue(
                       "status",
-                      value as UpdateTaskInput["status"],
+                      value as UpdateTaskRequest["status"],
                       {
                         shouldDirty: true,
                         shouldTouch: true,

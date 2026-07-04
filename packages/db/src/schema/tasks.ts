@@ -2,7 +2,10 @@ import { relations } from "drizzle-orm"
 import { index, pgEnum, pgTable, text, timestamp } from "drizzle-orm/pg-core"
 
 import { organization } from "@workspace/db/schema/auth"
-import { type TaskStatus, taskStatusValues } from "@workspace/shared/api/tasks"
+import {
+  type TaskStatus,
+  taskStatusValues,
+} from "@workspace/shared/api/tasks/types"
 
 export const taskStatus = pgEnum("task_status", taskStatusValues)
 
