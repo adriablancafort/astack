@@ -1,5 +1,5 @@
 import { useMutation } from "@tanstack/react-query"
-import { Loader2Icon, Trash2Icon } from "lucide-react"
+import { Trash2Icon } from "lucide-react"
 
 import { Button } from "@workspace/ui/components/button"
 import { FieldGroup, FieldLegend } from "@workspace/ui/components/field"
@@ -11,6 +11,7 @@ import {
   ItemTitle,
 } from "@workspace/ui/components/item"
 import { toast } from "@workspace/ui/components/sonner"
+import { Spinner } from "@/components/spinner"
 import { deleteUser } from "@/lib/auth-client"
 
 export function DeleteAccountForm() {
@@ -50,7 +51,7 @@ export function DeleteAccountForm() {
             disabled={deleteUserMutation.isPending}
           >
             {deleteUserMutation.isPending ? (
-              <Loader2Icon className="size-4 animate-spin" />
+              <Spinner />
             ) : (
               <Trash2Icon className="size-4" />
             )}

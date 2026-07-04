@@ -12,7 +12,7 @@ import {
   getCoreRowModel,
   useReactTable,
 } from "@tanstack/react-table"
-import { Loader2Icon, PlusIcon } from "lucide-react"
+import { PlusIcon } from "lucide-react"
 import { useMemo, useState } from "react"
 import { useForm } from "react-hook-form"
 
@@ -66,6 +66,7 @@ import {
   TableHeader,
   TableRow,
 } from "@workspace/ui/components/table"
+import { Spinner } from "@/components/spinner"
 import { api } from "@/lib/api"
 
 const tasksQueryOptions = queryOptions({
@@ -367,9 +368,7 @@ function Page() {
                       type="submit"
                       disabled={createTaskMutation.isPending}
                     >
-                      {createTaskMutation.isPending ? (
-                        <Loader2Icon className="size-4 animate-spin" />
-                      ) : null}
+                      {createTaskMutation.isPending ? <Spinner /> : null}
                       Create
                     </Button>
                   </DialogFooter>
@@ -381,7 +380,7 @@ function Page() {
 
         {tasksQuery.isLoading ? (
           <div className="flex min-h-40 items-center justify-center rounded-md border">
-            <Loader2Icon className="size-5 animate-spin text-muted-foreground" />
+            <Spinner className="size-5 text-muted-foreground" />
           </div>
         ) : tasksQuery.isError ? (
           <div className="rounded-md border border-destructive/20 bg-destructive/5 p-4 text-sm text-destructive">
@@ -476,9 +475,7 @@ function Page() {
                 Cancel
               </DialogClose>
               <Button type="submit" disabled={updateTaskMutation.isPending}>
-                {updateTaskMutation.isPending ? (
-                  <Loader2Icon className="size-4 animate-spin" />
-                ) : null}
+                {updateTaskMutation.isPending ? <Spinner /> : null}
                 Save
               </Button>
             </DialogFooter>

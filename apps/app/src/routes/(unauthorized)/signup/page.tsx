@@ -1,7 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router"
-import { Loader2Icon } from "lucide-react"
 import { Controller, useForm } from "react-hook-form"
 import * as z from "zod"
 
@@ -21,6 +20,7 @@ import {
 } from "@workspace/ui/components/field"
 import { Input } from "@workspace/ui/components/input"
 import { toast } from "@workspace/ui/components/sonner"
+import { Spinner } from "@/components/spinner"
 import { signUp } from "@/lib/auth-client"
 
 export const Route = createFileRoute("/(unauthorized)/signup/")({
@@ -187,11 +187,7 @@ function Page() {
               />
 
               <Button type="submit" disabled={signUpMutation.isPending}>
-                {signUpMutation.isPending ? (
-                  <Loader2Icon className="size-4 animate-spin" />
-                ) : (
-                  "Sign up"
-                )}
+                {signUpMutation.isPending ? <Spinner /> : "Sign up"}
               </Button>
 
               <div className="text-center text-sm">

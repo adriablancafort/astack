@@ -1,6 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { Loader2Icon } from "lucide-react"
 import { Controller, useForm } from "react-hook-form"
 import * as z from "zod"
 
@@ -16,6 +15,7 @@ import {
 } from "@workspace/ui/components/field"
 import { Input } from "@workspace/ui/components/input"
 import { toast } from "@workspace/ui/components/sonner"
+import { Spinner } from "@/components/spinner"
 import { updateUser, useSession } from "@/lib/auth-client"
 
 export function UserInformationForm() {
@@ -98,11 +98,7 @@ export function UserInformationForm() {
           type="submit"
           disabled={isSessionPending || updateUserMutation.isPending}
         >
-          {updateUserMutation.isPending ? (
-            <Loader2Icon className="size-4 animate-spin" />
-          ) : (
-            "Save changes"
-          )}
+          {updateUserMutation.isPending ? <Spinner /> : "Save changes"}
         </Button>
       </FieldGroup>
     </form>

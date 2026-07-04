@@ -6,7 +6,6 @@ import {
   useLocation,
   useNavigate,
 } from "@tanstack/react-router"
-import { Loader2Icon } from "lucide-react"
 import { Controller, useForm } from "react-hook-form"
 import * as z from "zod"
 
@@ -26,6 +25,7 @@ import {
 } from "@workspace/ui/components/field"
 import { Input } from "@workspace/ui/components/input"
 import { toast } from "@workspace/ui/components/sonner"
+import { Spinner } from "@/components/spinner"
 import { resetPassword } from "@/lib/auth-client"
 
 export const Route = createFileRoute("/(unauthorized)/set-new-password/")({
@@ -151,7 +151,7 @@ function Page() {
 
               <Button type="submit" disabled={setNewPasswordMutation.isPending}>
                 {setNewPasswordMutation.isPending ? (
-                  <Loader2Icon className="size-4 animate-spin" />
+                  <Spinner />
                 ) : (
                   "Set new password"
                 )}

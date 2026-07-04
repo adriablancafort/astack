@@ -1,6 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useMutation } from "@tanstack/react-query"
-import { Loader2Icon } from "lucide-react"
 import { Controller, useForm } from "react-hook-form"
 import * as z from "zod"
 
@@ -16,6 +15,7 @@ import {
 } from "@workspace/ui/components/field"
 import { Input } from "@workspace/ui/components/input"
 import { toast } from "@workspace/ui/components/sonner"
+import { Spinner } from "@/components/spinner"
 import { changePassword } from "@/lib/auth-client"
 
 export function AccountPasswordForm() {
@@ -138,11 +138,7 @@ export function AccountPasswordForm() {
         />
 
         <Button type="submit" disabled={changePasswordMutation.isPending}>
-          {changePasswordMutation.isPending ? (
-            <Loader2Icon className="size-4 animate-spin" />
-          ) : (
-            "Set new password"
-          )}
+          {changePasswordMutation.isPending ? <Spinner /> : "Set new password"}
         </Button>
       </FieldGroup>
     </form>

@@ -1,6 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useMutation } from "@tanstack/react-query"
-import { Loader2Icon } from "lucide-react"
 import { Controller, useForm } from "react-hook-form"
 import * as z from "zod"
 
@@ -16,6 +15,7 @@ import {
 } from "@workspace/ui/components/field"
 import { Input } from "@workspace/ui/components/input"
 import { toast } from "@workspace/ui/components/sonner"
+import { Spinner } from "@/components/spinner"
 import { organization } from "@/lib/auth-client"
 
 type OrganizationInfo = {
@@ -122,11 +122,7 @@ export function OrganizationInformationForm({
         />
 
         <Button type="submit" disabled={updateOrganizationMutation.isPending}>
-          {updateOrganizationMutation.isPending ? (
-            <Loader2Icon className="size-4 animate-spin" />
-          ) : (
-            "Save changes"
-          )}
+          {updateOrganizationMutation.isPending ? <Spinner /> : "Save changes"}
         </Button>
       </FieldGroup>
     </form>
