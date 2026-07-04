@@ -6,9 +6,8 @@
     "build": "rm -rf dist && rolldown -c",
     "start": "node dist/apps/api/src/index.js",
     "typecheck": "tsc --noEmit",
-    "lint": "eslint .",
-    "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "lint": "biome lint .",
+    "format": "biome check --write --linter-enabled=false ."
   },
   "dependencies": {
     "@hono/node-server": "^1.19.14",

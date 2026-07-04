@@ -5,9 +5,8 @@
   "scripts": {
     "ui": "shadcn",
     "typecheck": "tsc --noEmit",
-    "lint": "eslint .",
-    "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "lint": "biome lint .",
+    "format": "biome check --write --linter-enabled=false ."
   },
   "exports": {
     "./globals.css": "./src/styles/globals.css",

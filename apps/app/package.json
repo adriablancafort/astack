@@ -8,9 +8,8 @@
     "build": "vite build",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
-    "lint": "eslint .",
-    "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "lint": "biome lint .",
+    "format": "biome check --write --linter-enabled=false ."
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",

@@ -19,7 +19,7 @@ The repo is intentionally small and direct. It is meant to be a starting point y
 - Backend: Hono, Better Auth, Drizzle ORM, PostgreSQL
 - Shared contracts: Zod + TypeScript in `packages/shared`
 - UI: shared component package in `packages/ui`
-- Tooling: pnpm workspaces, TypeScript, ESLint, Prettier
+- Tooling: pnpm workspaces, TypeScript, Biome
 
 ## Monorepo Structure
 
