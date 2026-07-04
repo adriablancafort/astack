@@ -1,4 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod"
+import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { createFileRoute, useNavigate } from "@tanstack/react-router"
 import { Loader2Icon } from "lucide-react"
 import { Controller, useForm } from "react-hook-form"
@@ -28,6 +29,7 @@ export const Route = createFileRoute("/(authorized)/create-organization/")({
 
 function Page() {
   const navigate = useNavigate()
+  const queryClient = useQueryClient()
 
   const createOrganizationSchema = z.object({
     name: z.string().trim().min(1, "Organization name is required"),
@@ -42,24 +44,27 @@ function Page() {
     },
   })
 
-  async function onSubmit(values: CreateOrganizationFormValues) {
-    await organization.create(
-      {
+  const createOrganizationMutation = useMutation({
+    mutationFn: async (values: CreateOrganizationFormValues) => {
+      const result = await organization.create({
         name: values.name.trim(),
         slug: crypto.randomUUID(),
         keepCurrentActiveOrganization: false,
-      },
-      {
-        onSuccess: () => {
-          toast.success("Organization created")
-          navigate({ to: "/" })
-        },
-        onError: (ctx) => {
-          toast.error(ctx.error.message)
-        },
+      })
+
+      if (result.error) {
+        throw new Error(result.error.message)
       }
-    )
-  }
+    },
+    onSuccess: async () => {
+      await queryClient.refetchQueries({ queryKey: ["session"] })
+      toast.success("Organization created")
+      navigate({ to: "/" })
+    },
+    onError: (error) => {
+      toast.error(error.message)
+    },
+  })
 
   return (
     <div className="flex h-screen w-full items-center justify-center p-6">
@@ -71,7 +76,12 @@ function Page() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={form.handleSubmit(onSubmit)} noValidate>
+          <form
+            onSubmit={form.handleSubmit((values) =>
+              createOrganizationMutation.mutate(values)
+            )}
+            noValidate
+          >
             <FieldGroup>
               <Controller
                 name="name"
@@ -87,6 +97,7 @@ function Page() {
                       placeholder="Acme Inc"
                       aria-invalid={fieldState.invalid}
                       autoFocus
+                      disabled={createOrganizationMutation.isPending}
                     />
                     {fieldState.invalid && (
                       <FieldError errors={[fieldState.error]} />
@@ -96,8 +107,11 @@ function Page() {
               />
 
               <Field>
-                <Button type="submit" disabled={form.formState.isSubmitting}>
-                  {form.formState.isSubmitting ? (
+                <Button
+                  type="submit"
+                  disabled={createOrganizationMutation.isPending}
+                >
+                  {createOrganizationMutation.isPending ? (
                     <Loader2Icon className="size-4 animate-spin" />
                   ) : (
                     "Create organization"

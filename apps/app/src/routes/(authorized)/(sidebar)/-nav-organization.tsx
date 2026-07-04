@@ -1,4 +1,4 @@
-import { useQueryClient } from "@tanstack/react-query"
+import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { Navigate, useNavigate } from "@tanstack/react-router"
 import { ChevronsUpDownIcon, PlusIcon } from "lucide-react"
 
@@ -33,21 +33,21 @@ export function NavOrganization() {
   const { data: organizations } = useListOrganizations()
   const organizationName = activeOrganization?.name || "Loading..."
 
-  async function handleSetActiveOrganization(organizationId: string) {
-    await organization.setActive(
-      {
-        organizationId,
-      },
-      {
-        onSuccess: () => {
-          queryClient.invalidateQueries()
-        },
-        onError: (ctx) => {
-          toast.error(ctx.error.message)
-        },
+  const setActiveOrganizationMutation = useMutation({
+    mutationFn: async (organizationId: string) => {
+      const result = await organization.setActive({ organizationId })
+
+      if (result.error) {
+        throw new Error(result.error.message)
       }
-    )
-  }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries()
+    },
+    onError: (error) => {
+      toast.error(error.message)
+    },
+  })
 
   function handleAddOrganization() {
     navigate({ to: "/create-organization" })
@@ -91,7 +91,8 @@ export function NavOrganization() {
                 organizations.map((org) => (
                   <DropdownMenuItem
                     key={org.id}
-                    onClick={() => handleSetActiveOrganization(org.id)}
+                    onClick={() => setActiveOrganizationMutation.mutate(org.id)}
+                    disabled={setActiveOrganizationMutation.isPending}
                     className="gap-2 p-2"
                   >
                     <div className="flex size-6 items-center justify-center rounded-md border">

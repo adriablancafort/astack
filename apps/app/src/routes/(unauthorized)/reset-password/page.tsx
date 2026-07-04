@@ -1,4 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod"
+import { useMutation } from "@tanstack/react-query"
 import { createFileRoute, Link } from "@tanstack/react-router"
 import { Loader2Icon } from "lucide-react"
 import { Controller, useForm } from "react-hook-form"
@@ -41,25 +42,27 @@ function Page() {
     },
   })
 
-  async function onSubmit(values: RecoverPasswordFormValues) {
-    await requestPasswordReset(
-      {
+  const recoverPasswordMutation = useMutation({
+    mutationFn: async (values: RecoverPasswordFormValues) => {
+      const result = await requestPasswordReset({
         email: values.email,
         redirectTo: `${env.FRONTEND_URL}/set-new-password`,
-      },
-      {
-        onSuccess: () => {
-          toast.success(
-            "If an account exists for that email, a reset link has been sent"
-          )
-          form.reset()
-        },
-        onError: (ctx) => {
-          toast.error(ctx.error.message)
-        },
+      })
+
+      if (result.error) {
+        throw new Error(result.error.message)
       }
-    )
-  }
+    },
+    onSuccess: () => {
+      toast.success(
+        "If an account exists for that email, a reset link has been sent"
+      )
+      form.reset()
+    },
+    onError: (error) => {
+      toast.error(error.message)
+    },
+  })
 
   return (
     <div className="flex h-screen w-full items-center justify-center p-6">
@@ -71,7 +74,12 @@ function Page() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={form.handleSubmit(onSubmit)} noValidate>
+          <form
+            onSubmit={form.handleSubmit((values) =>
+              recoverPasswordMutation.mutate(values)
+            )}
+            noValidate
+          >
             <FieldGroup>
               <Controller
                 name="email"
@@ -86,6 +94,7 @@ function Page() {
                       placeholder="mail@example.com"
                       autoComplete="email"
                       aria-invalid={fieldState.invalid}
+                      disabled={recoverPasswordMutation.isPending}
                     />
                     {fieldState.invalid && (
                       <FieldError errors={[fieldState.error]} />
@@ -94,8 +103,11 @@ function Page() {
                 )}
               />
 
-              <Button type="submit" disabled={form.formState.isSubmitting}>
-                {form.formState.isSubmitting ? (
+              <Button
+                type="submit"
+                disabled={recoverPasswordMutation.isPending}
+              >
+                {recoverPasswordMutation.isPending ? (
                   <Loader2Icon className="size-4 animate-spin" />
                 ) : (
                   "Send reset link"

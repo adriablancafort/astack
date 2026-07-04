@@ -1,6 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod"
+import { useMutation } from "@tanstack/react-query"
 import { Loader2Icon } from "lucide-react"
-import * as React from "react"
 import { Controller, useForm } from "react-hook-form"
 import * as z from "zod"
 
@@ -43,8 +43,6 @@ export function OrganizationInformationForm({
 }: {
   org: OrganizationInfo
 }) {
-  const [isSaving, setIsSaving] = React.useState(false)
-
   const form = useForm<GeneralFormValues>({
     resolver: zodResolver(generalSchema),
     defaultValues: {
@@ -53,26 +51,32 @@ export function OrganizationInformationForm({
     },
   })
 
-  async function handleSubmit(values: GeneralFormValues) {
-    setIsSaving(true)
+  const updateOrganizationMutation = useMutation({
+    mutationFn: async (values: GeneralFormValues) => {
+      const result = await organization.update({
+        data: { name: values.name, slug: values.slug },
+        organizationId: org.id,
+      })
 
-    const result = await organization.update({
-      data: { name: values.name, slug: values.slug },
-      organizationId: org.id,
-    })
-
-    setIsSaving(false)
-
-    if (result.error) {
-      toast.error(result.error.message)
-      return
-    }
-
-    toast.success("Organization updated")
-  }
+      if (result.error) {
+        throw new Error(result.error.message)
+      }
+    },
+    onSuccess: () => {
+      toast.success("Organization updated")
+    },
+    onError: (error) => {
+      toast.error(error.message)
+    },
+  })
 
   return (
-    <form onSubmit={form.handleSubmit(handleSubmit)} noValidate>
+    <form
+      onSubmit={form.handleSubmit((values) =>
+        updateOrganizationMutation.mutate(values)
+      )}
+      noValidate
+    >
       <FieldGroup>
         <FieldSet>
           <FieldLegend>Organization information</FieldLegend>
@@ -92,6 +96,7 @@ export function OrganizationInformationForm({
                 id={field.name}
                 placeholder="Acme Inc"
                 aria-invalid={fieldState.invalid}
+                disabled={updateOrganizationMutation.isPending}
               />
               {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
             </Field>
@@ -109,14 +114,15 @@ export function OrganizationInformationForm({
                 id={field.name}
                 placeholder="acme-inc"
                 aria-invalid={fieldState.invalid}
+                disabled={updateOrganizationMutation.isPending}
               />
               {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
             </Field>
           )}
         />
 
-        <Button type="submit">
-          {isSaving ? (
+        <Button type="submit" disabled={updateOrganizationMutation.isPending}>
+          {updateOrganizationMutation.isPending ? (
             <Loader2Icon className="size-4 animate-spin" />
           ) : (
             "Save changes"

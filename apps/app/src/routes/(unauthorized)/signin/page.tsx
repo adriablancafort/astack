@@ -1,4 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod"
+import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router"
 import { Loader2Icon } from "lucide-react"
 import { Controller, useForm } from "react-hook-form"
@@ -28,6 +29,7 @@ export const Route = createFileRoute("/(unauthorized)/signin/")({
 
 function Page() {
   const navigate = useNavigate()
+  const queryClient = useQueryClient()
 
   const signInFormSchema = z.object({
     email: z.email("Enter a valid email address"),
@@ -44,22 +46,25 @@ function Page() {
     },
   })
 
-  async function onSubmit(values: SignInFormValues) {
-    await signIn.email(
-      {
+  const signInMutation = useMutation({
+    mutationFn: async (values: SignInFormValues) => {
+      const result = await signIn.email({
         email: values.email,
         password: values.password,
-      },
-      {
-        onSuccess: async () => {
-          navigate({ to: "/" })
-        },
-        onError: (ctx) => {
-          toast.error(ctx.error.message)
-        },
+      })
+
+      if (result.error) {
+        throw new Error(result.error.message)
       }
-    )
-  }
+    },
+    onSuccess: async () => {
+      await queryClient.refetchQueries({ queryKey: ["session"] })
+      navigate({ to: "/" })
+    },
+    onError: (error) => {
+      toast.error(error.message)
+    },
+  })
 
   return (
     <div className="flex h-screen w-full items-center justify-center p-6">
@@ -71,7 +76,12 @@ function Page() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={form.handleSubmit(onSubmit)} noValidate>
+          <form
+            onSubmit={form.handleSubmit((values) =>
+              signInMutation.mutate(values)
+            )}
+            noValidate
+          >
             <FieldGroup>
               <Controller
                 name="email"
@@ -86,6 +96,7 @@ function Page() {
                       placeholder="mail@example.com"
                       autoComplete="email"
                       aria-invalid={fieldState.invalid}
+                      disabled={signInMutation.isPending}
                     />
                     {fieldState.invalid && (
                       <FieldError errors={[fieldState.error]} />
@@ -114,6 +125,7 @@ function Page() {
                       type="password"
                       autoComplete="current-password"
                       aria-invalid={fieldState.invalid}
+                      disabled={signInMutation.isPending}
                     />
                     {fieldState.invalid && (
                       <FieldError errors={[fieldState.error]} />
@@ -122,8 +134,8 @@ function Page() {
                 )}
               />
 
-              <Button type="submit" disabled={form.formState.isSubmitting}>
-                {form.formState.isSubmitting ? (
+              <Button type="submit" disabled={signInMutation.isPending}>
+                {signInMutation.isPending ? (
                   <Loader2Icon className="size-4 animate-spin" />
                 ) : (
                   "Sign in"

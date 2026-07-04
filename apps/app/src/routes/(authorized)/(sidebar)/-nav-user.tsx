@@ -1,3 +1,4 @@
+import { useMutation } from "@tanstack/react-query"
 import { Link, useNavigate } from "@tanstack/react-router"
 import {
   CheckIcon,
@@ -50,18 +51,21 @@ export function NavUser() {
     initials: session?.user?.name?.[0]?.toUpperCase() || "?",
   }
 
-  async function handleSignOut() {
-    await signOut({
-      fetchOptions: {
-        onSuccess: () => {
-          navigate({ to: "/signin" })
-        },
-        onError: (ctx) => {
-          toast.error(ctx.error.message)
-        },
-      },
-    })
-  }
+  const signOutMutation = useMutation({
+    mutationFn: async () => {
+      const result = await signOut()
+
+      if (result.error) {
+        throw new Error(result.error.message)
+      }
+    },
+    onSuccess: () => {
+      navigate({ to: "/signin" })
+    },
+    onError: (error) => {
+      toast.error(error.message)
+    },
+  })
 
   return (
     <SidebarMenu>
@@ -138,7 +142,10 @@ export function NavUser() {
               </DropdownMenuPortal>
             </DropdownMenuSub>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={handleSignOut}>
+            <DropdownMenuItem
+              onClick={() => signOutMutation.mutate()}
+              disabled={signOutMutation.isPending}
+            >
               <LogOutIcon />
               Sign out
             </DropdownMenuItem>

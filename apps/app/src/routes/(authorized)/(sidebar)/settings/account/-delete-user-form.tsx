@@ -1,5 +1,5 @@
+import { useMutation } from "@tanstack/react-query"
 import { Loader2Icon, Trash2Icon } from "lucide-react"
-import { useState } from "react"
 
 import { Button } from "@workspace/ui/components/button"
 import { FieldGroup, FieldLegend } from "@workspace/ui/components/field"
@@ -14,24 +14,23 @@ import { toast } from "@workspace/ui/components/sonner"
 import { deleteUser } from "@/lib/auth-client"
 
 export function DeleteAccountForm() {
-  const [isDeleting, setIsDeleting] = useState(false)
+  const deleteUserMutation = useMutation({
+    mutationFn: async () => {
+      const result = await deleteUser({
+        callbackURL: "/signin",
+      })
 
-  async function handleDeleteAccount() {
-    setIsDeleting(true)
-
-    const result = await deleteUser({
-      callbackURL: "/signin",
-    })
-
-    setIsDeleting(false)
-
-    if (result.error) {
-      toast.error(result.error.message)
-      return
-    }
-
-    toast.success("Account deleted")
-  }
+      if (result.error) {
+        throw new Error(result.error.message)
+      }
+    },
+    onSuccess: () => {
+      toast.success("Account deleted")
+    },
+    onError: (error) => {
+      toast.error(error.message)
+    },
+  })
 
   return (
     <FieldGroup>
@@ -47,10 +46,10 @@ export function DeleteAccountForm() {
             type="button"
             variant="destructive"
             size="sm"
-            onClick={handleDeleteAccount}
-            disabled={isDeleting}
+            onClick={() => deleteUserMutation.mutate()}
+            disabled={deleteUserMutation.isPending}
           >
-            {isDeleting ? (
+            {deleteUserMutation.isPending ? (
               <Loader2Icon className="size-4 animate-spin" />
             ) : (
               <Trash2Icon className="size-4" />

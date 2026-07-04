@@ -1,4 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod"
+import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { Loader2Icon } from "lucide-react"
 import { Controller, useForm } from "react-hook-form"
 import * as z from "zod"
@@ -18,6 +19,8 @@ import { toast } from "@workspace/ui/components/sonner"
 import { updateUser, useSession } from "@/lib/auth-client"
 
 export function UserInformationForm() {
+  const queryClient = useQueryClient()
+
   const userInformationSchema = z.object({
     name: z.string().trim().min(1, "Name cannot be empty"),
   })
@@ -36,21 +39,32 @@ export function UserInformationForm() {
     },
   })
 
-  async function handleSubmit(values: UserInformationFormValues) {
-    const result = await updateUser({
-      name: values.name,
-    })
+  const updateUserMutation = useMutation({
+    mutationFn: async (values: UserInformationFormValues) => {
+      const result = await updateUser({
+        name: values.name,
+      })
 
-    if (result.error) {
-      toast.error(result.error.message)
-      return
-    }
-
-    toast.success("Account information updated")
-  }
+      if (result.error) {
+        throw new Error(result.error.message)
+      }
+    },
+    onSuccess: async () => {
+      await queryClient.refetchQueries({ queryKey: ["session"] })
+      toast.success("Account information updated")
+    },
+    onError: (error) => {
+      toast.error(error.message)
+    },
+  })
 
   return (
-    <form onSubmit={form.handleSubmit(handleSubmit)} noValidate>
+    <form
+      onSubmit={form.handleSubmit((values) =>
+        updateUserMutation.mutate(values)
+      )}
+      noValidate
+    >
       <FieldGroup>
         <FieldSet>
           <FieldLegend>Account information</FieldLegend>
@@ -68,6 +82,7 @@ export function UserInformationForm() {
                 id={field.name}
                 autoComplete="name"
                 aria-invalid={fieldState.invalid}
+                disabled={updateUserMutation.isPending}
               />
               {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
             </Field>
@@ -81,9 +96,9 @@ export function UserInformationForm() {
 
         <Button
           type="submit"
-          disabled={isSessionPending || form.formState.isSubmitting}
+          disabled={isSessionPending || updateUserMutation.isPending}
         >
-          {form.formState.isSubmitting ? (
+          {updateUserMutation.isPending ? (
             <Loader2Icon className="size-4 animate-spin" />
           ) : (
             "Save changes"

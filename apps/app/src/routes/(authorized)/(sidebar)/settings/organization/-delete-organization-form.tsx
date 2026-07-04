@@ -1,5 +1,5 @@
+import { useMutation } from "@tanstack/react-query"
 import { Loader2Icon, Trash2Icon } from "lucide-react"
-import * as React from "react"
 
 import { Button } from "@workspace/ui/components/button"
 import { FieldGroup, FieldLegend } from "@workspace/ui/components/field"
@@ -18,23 +18,22 @@ export function DeleteOrganizationForm({
 }: {
   organizationId: string
 }) {
-  const [isDeleting, setIsDeleting] = React.useState(false)
+  const deleteOrganizationMutation = useMutation({
+    mutationFn: async () => {
+      const result = await organization.delete({ organizationId })
 
-  async function handleDeleteOrganization() {
-    setIsDeleting(true)
-
-    const result = await organization.delete({ organizationId })
-
-    setIsDeleting(false)
-
-    if (result.error) {
-      toast.error(result.error.message)
-      return
-    }
-
-    toast.success("Organization deleted")
-    window.location.assign("/")
-  }
+      if (result.error) {
+        throw new Error(result.error.message)
+      }
+    },
+    onSuccess: () => {
+      toast.success("Organization deleted")
+      window.location.assign("/")
+    },
+    onError: (error) => {
+      toast.error(error.message)
+    },
+  })
 
   return (
     <FieldGroup>
@@ -52,10 +51,10 @@ export function DeleteOrganizationForm({
             type="button"
             variant="destructive"
             size="sm"
-            onClick={handleDeleteOrganization}
-            disabled={isDeleting}
+            onClick={() => deleteOrganizationMutation.mutate()}
+            disabled={deleteOrganizationMutation.isPending}
           >
-            {isDeleting ? (
+            {deleteOrganizationMutation.isPending ? (
               <Loader2Icon className="size-4 animate-spin" />
             ) : (
               <Trash2Icon className="size-4" />

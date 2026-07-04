@@ -1,4 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod"
+import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router"
 import { Loader2Icon } from "lucide-react"
 import { Controller, useForm } from "react-hook-form"
@@ -28,6 +29,7 @@ export const Route = createFileRoute("/(unauthorized)/signup/")({
 
 function Page() {
   const navigate = useNavigate()
+  const queryClient = useQueryClient()
 
   const signUpFormSchema = z
     .object({
@@ -58,24 +60,27 @@ function Page() {
     },
   })
 
-  async function onSubmit(values: SignUpFormValues) {
-    await signUp.email(
-      {
+  const signUpMutation = useMutation({
+    mutationFn: async (values: SignUpFormValues) => {
+      const result = await signUp.email({
         name: values.name,
         email: values.email,
         password: values.password,
-      },
-      {
-        onSuccess: () => {
-          toast.success("Account created")
-          navigate({ to: "/create-organization" })
-        },
-        onError: (ctx) => {
-          toast.error(ctx.error.message)
-        },
+      })
+
+      if (result.error) {
+        throw new Error(result.error.message)
       }
-    )
-  }
+    },
+    onSuccess: async () => {
+      await queryClient.refetchQueries({ queryKey: ["session"] })
+      toast.success("Account created")
+      navigate({ to: "/create-organization" })
+    },
+    onError: (error) => {
+      toast.error(error.message)
+    },
+  })
 
   return (
     <div className="flex h-screen w-full items-center justify-center p-6">
@@ -87,7 +92,12 @@ function Page() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={form.handleSubmit(onSubmit)} noValidate>
+          <form
+            onSubmit={form.handleSubmit((values) =>
+              signUpMutation.mutate(values)
+            )}
+            noValidate
+          >
             <FieldGroup>
               <Controller
                 name="name"
@@ -101,6 +111,7 @@ function Page() {
                       placeholder="John Doe"
                       autoComplete="name"
                       aria-invalid={fieldState.invalid}
+                      disabled={signUpMutation.isPending}
                     />
                     {fieldState.invalid && (
                       <FieldError errors={[fieldState.error]} />
@@ -122,6 +133,7 @@ function Page() {
                       placeholder="mail@example.com"
                       autoComplete="email"
                       aria-invalid={fieldState.invalid}
+                      disabled={signUpMutation.isPending}
                     />
                     {fieldState.invalid && (
                       <FieldError errors={[fieldState.error]} />
@@ -142,6 +154,7 @@ function Page() {
                       type="password"
                       autoComplete="new-password"
                       aria-invalid={fieldState.invalid}
+                      disabled={signUpMutation.isPending}
                     />
                     {fieldState.invalid && (
                       <FieldError errors={[fieldState.error]} />
@@ -164,6 +177,7 @@ function Page() {
                       type="password"
                       autoComplete="new-password"
                       aria-invalid={fieldState.invalid}
+                      disabled={signUpMutation.isPending}
                     />
                     {fieldState.invalid && (
                       <FieldError errors={[fieldState.error]} />
@@ -172,8 +186,8 @@ function Page() {
                 )}
               />
 
-              <Button type="submit" disabled={form.formState.isSubmitting}>
-                {form.formState.isSubmitting ? (
+              <Button type="submit" disabled={signUpMutation.isPending}>
+                {signUpMutation.isPending ? (
                   <Loader2Icon className="size-4 animate-spin" />
                 ) : (
                   "Sign up"

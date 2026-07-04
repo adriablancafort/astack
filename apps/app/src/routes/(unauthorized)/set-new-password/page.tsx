@@ -1,4 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod"
+import { useMutation } from "@tanstack/react-query"
 import {
   createFileRoute,
   Link,
@@ -61,25 +62,29 @@ function Page() {
     },
   })
 
-  async function onSubmit(values: SetNewPasswordFormValues) {
-    if (!token) {
-      toast.error("Invalid or missing reset token")
-      return
-    }
+  const setNewPasswordMutation = useMutation({
+    mutationFn: async (values: SetNewPasswordFormValues) => {
+      if (!token) {
+        throw new Error("Invalid or missing reset token")
+      }
 
-    const result = await resetPassword({
-      newPassword: values.password,
-      token,
-    })
+      const result = await resetPassword({
+        newPassword: values.password,
+        token,
+      })
 
-    if (result.error) {
-      toast.error(result.error.message)
-      return
-    }
-
-    toast.success("New password set")
-    navigate({ to: "/signin" })
-  }
+      if (result.error) {
+        throw new Error(result.error.message)
+      }
+    },
+    onSuccess: () => {
+      toast.success("New password set")
+      navigate({ to: "/signin" })
+    },
+    onError: (error) => {
+      toast.error(error.message)
+    },
+  })
 
   if (!token) {
     return null
@@ -93,7 +98,12 @@ function Page() {
           <CardDescription>Enter your new password below</CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={form.handleSubmit(onSubmit)} noValidate>
+          <form
+            onSubmit={form.handleSubmit((values) =>
+              setNewPasswordMutation.mutate(values)
+            )}
+            noValidate
+          >
             <FieldGroup>
               <Controller
                 name="password"
@@ -107,6 +117,7 @@ function Page() {
                       type="password"
                       autoComplete="new-password"
                       aria-invalid={fieldState.invalid}
+                      disabled={setNewPasswordMutation.isPending}
                     />
                     {fieldState.invalid && (
                       <FieldError errors={[fieldState.error]} />
@@ -129,6 +140,7 @@ function Page() {
                       type="password"
                       autoComplete="new-password"
                       aria-invalid={fieldState.invalid}
+                      disabled={setNewPasswordMutation.isPending}
                     />
                     {fieldState.invalid && (
                       <FieldError errors={[fieldState.error]} />
@@ -137,8 +149,8 @@ function Page() {
                 )}
               />
 
-              <Button type="submit" disabled={form.formState.isSubmitting}>
-                {form.formState.isSubmitting ? (
+              <Button type="submit" disabled={setNewPasswordMutation.isPending}>
+                {setNewPasswordMutation.isPending ? (
                   <Loader2Icon className="size-4 animate-spin" />
                 ) : (
                   "Set new password"

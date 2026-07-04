@@ -1,4 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod"
+import { useMutation } from "@tanstack/react-query"
 import { Loader2Icon } from "lucide-react"
 import { Controller, useForm } from "react-hook-form"
 import * as z from "zod"
@@ -45,24 +46,34 @@ export function AccountPasswordForm() {
     },
   })
 
-  async function handleSubmit(values: PasswordFormValues) {
-    const result = await changePassword({
-      currentPassword: values.currentPassword,
-      newPassword: values.newPassword,
-      revokeOtherSessions: true,
-    })
+  const changePasswordMutation = useMutation({
+    mutationFn: async (values: PasswordFormValues) => {
+      const result = await changePassword({
+        currentPassword: values.currentPassword,
+        newPassword: values.newPassword,
+        revokeOtherSessions: true,
+      })
 
-    if (result.error) {
-      toast.error(result.error.message)
-      return
-    }
-
-    toast.success("New password set")
-    form.reset()
-  }
+      if (result.error) {
+        throw new Error(result.error.message)
+      }
+    },
+    onSuccess: () => {
+      toast.success("New password set")
+      form.reset()
+    },
+    onError: (error) => {
+      toast.error(error.message)
+    },
+  })
 
   return (
-    <form onSubmit={form.handleSubmit(handleSubmit)} noValidate>
+    <form
+      onSubmit={form.handleSubmit((values) =>
+        changePasswordMutation.mutate(values)
+      )}
+      noValidate
+    >
       <FieldGroup>
         <FieldSet>
           <FieldLegend>Password</FieldLegend>
@@ -81,6 +92,7 @@ export function AccountPasswordForm() {
                 type="password"
                 autoComplete="current-password"
                 aria-invalid={fieldState.invalid}
+                disabled={changePasswordMutation.isPending}
               />
               {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
             </Field>
@@ -99,6 +111,7 @@ export function AccountPasswordForm() {
                 type="password"
                 autoComplete="new-password"
                 aria-invalid={fieldState.invalid}
+                disabled={changePasswordMutation.isPending}
               />
               {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
             </Field>
@@ -117,14 +130,15 @@ export function AccountPasswordForm() {
                 type="password"
                 autoComplete="new-password"
                 aria-invalid={fieldState.invalid}
+                disabled={changePasswordMutation.isPending}
               />
               {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
             </Field>
           )}
         />
 
-        <Button type="submit" disabled={form.formState.isSubmitting}>
-          {form.formState.isSubmitting ? (
+        <Button type="submit" disabled={changePasswordMutation.isPending}>
+          {changePasswordMutation.isPending ? (
             <Loader2Icon className="size-4 animate-spin" />
           ) : (
             "Set new password"
