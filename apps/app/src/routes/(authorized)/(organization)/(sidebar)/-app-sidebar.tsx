@@ -14,8 +14,8 @@ import {
   SidebarMenuItem,
   SidebarRail,
 } from "@workspace/ui/components/sidebar"
-import { NavOrganization } from "./-nav-organization"
 import { NavUser } from "./-nav-user"
+import { OrganizationSwitcher } from "./-organization-switcher"
 
 const data = {
   navMain: [
@@ -38,7 +38,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
-        <NavOrganization />
+        <OrganizationSwitcher />
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>

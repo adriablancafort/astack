@@ -1,5 +1,5 @@
+import { createAuthClient } from "better-auth/client"
 import { organizationClient } from "better-auth/client/plugins"
-import { createAuthClient } from "better-auth/react"
 
 import { env } from "@/lib/env"
 
@@ -9,19 +9,28 @@ export const authClient = createAuthClient({
 })
 
 export const {
+  accountInfo,
   changeEmail,
   changePassword,
   deleteUser,
+  getAccessToken,
+  getSession,
+  linkSocial,
   listAccounts,
-  unlinkAccount,
+  listSessions,
+  organization,
+  refreshToken,
+  requestPasswordReset,
+  resetPassword,
+  revokeOtherSessions,
+  revokeSession,
+  revokeSessions,
+  sendVerificationEmail,
   signIn,
   signOut,
   signUp,
-  resetPassword,
-  requestPasswordReset,
+  unlinkAccount,
+  updateSession,
   updateUser,
-  useSession,
-  organization,
-  useActiveOrganization,
-  useListOrganizations,
+  verifyEmail,
 } = authClient

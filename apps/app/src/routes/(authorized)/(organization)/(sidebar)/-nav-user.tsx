@@ -1,5 +1,5 @@
-import { useMutation } from "@tanstack/react-query"
-import { Link, useNavigate } from "@tanstack/react-router"
+import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query"
+import { useNavigate } from "@tanstack/react-router"
 import {
   CheckIcon,
   ChevronsUpDownIcon,
@@ -7,7 +7,6 @@ import {
   MonitorIcon,
   MoonIcon,
   SunIcon,
-  UserIcon,
 } from "lucide-react"
 
 import {
@@ -35,37 +34,41 @@ import {
   useSidebar,
 } from "@workspace/ui/components/sidebar"
 import { toast } from "@workspace/ui/components/sonner"
-import { signOut, useSession } from "@/lib/auth-client"
+import { signOut } from "@/lib/auth/client"
+import { sessionQueryOptions } from "@/lib/auth/session"
 import { useTheme } from "@/providers/theme-provider"
 
 export function NavUser() {
   const navigate = useNavigate()
+  const queryClient = useQueryClient()
   const { isMobile } = useSidebar()
   const { theme, setTheme } = useTheme()
-  const { data: session } = useSession()
+  const { data: session } = useSuspenseQuery(sessionQueryOptions())
 
-  const user = {
-    name: session?.user?.name || "",
-    email: session?.user?.email || "",
-    avatar: session?.user?.image || "",
-    initials: session?.user?.name?.[0]?.toUpperCase() || "?",
+  if (!session) {
+    return null
   }
 
-  const signOutMutation = useMutation({
-    mutationFn: async () => {
-      const result = await signOut()
+  const user = {
+    name: session.user.name,
+    email: session.user.email,
+    avatar: session.user.image ?? "",
+    initials: session.user.name?.[0]?.toUpperCase(),
+  }
 
-      if (result.error) {
-        throw new Error(result.error.message)
-      }
-    },
-    onSuccess: () => {
-      navigate({ to: "/signin" })
-    },
-    onError: (error) => {
-      toast.error(error.message)
-    },
-  })
+  async function handleSignOut() {
+    await signOut({
+      fetchOptions: {
+        onSuccess: async () => {
+          queryClient.clear()
+          navigate({ to: "/signin" })
+        },
+        onError: (ctx) => {
+          toast.error(ctx.error.message)
+        },
+      },
+    })
+  }
 
   return (
     <SidebarMenu>
@@ -107,13 +110,6 @@ export function NavUser() {
               </DropdownMenuLabel>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <Link to="/settings/account">
-              <DropdownMenuItem>
-                <UserIcon />
-                Account
-              </DropdownMenuItem>
-            </Link>
-            <DropdownMenuSeparator />
             <DropdownMenuSub>
               <DropdownMenuSubTrigger>
                 {theme === "light" && <SunIcon />}
@@ -142,10 +138,7 @@ export function NavUser() {
               </DropdownMenuPortal>
             </DropdownMenuSub>
             <DropdownMenuSeparator />
-            <DropdownMenuItem
-              onClick={() => signOutMutation.mutate()}
-              disabled={signOutMutation.isPending}
-            >
+            <DropdownMenuItem onClick={handleSignOut}>
               <LogOutIcon />
               Sign out
             </DropdownMenuItem>

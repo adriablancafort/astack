@@ -1,21 +1,16 @@
-import { createFileRoute, Navigate, Outlet } from "@tanstack/react-router"
+import { createFileRoute, Outlet, redirect } from "@tanstack/react-router"
 
-import { useSession } from "@/lib/auth-client"
+import { sessionQueryOptions } from "@/lib/auth/session"
 
 export const Route = createFileRoute("/(unauthorized)")({
-  component: Layout,
+  beforeLoad: async ({ context }) => {
+    const session = await context.queryClient.ensureQueryData(
+      sessionQueryOptions()
+    )
+
+    if (session) {
+      throw redirect({ to: "/" })
+    }
+  },
+  component: Outlet,
 })
-
-function Layout() {
-  const { data: session, isPending } = useSession()
-
-  if (isPending) {
-    return null
-  }
-
-  if (session) {
-    return <Navigate to="/" replace />
-  }
-
-  return <Outlet />
-}

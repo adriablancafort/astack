@@ -12,7 +12,7 @@ import {
 } from "@workspace/ui/components/item"
 import { toast } from "@workspace/ui/components/sonner"
 import { Spinner } from "@/components/spinner"
-import { deleteUser } from "@/lib/auth-client"
+import { deleteUser } from "@/lib/auth/client"
 
 export function DeleteAccountForm() {
   const deleteUserMutation = useMutation({

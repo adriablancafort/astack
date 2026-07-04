@@ -20,8 +20,8 @@ import {
 } from "@workspace/ui/components/field"
 import { Input } from "@workspace/ui/components/input"
 import { toast } from "@workspace/ui/components/sonner"
-import { Spinner } from "@/components/spinner"
-import { organization } from "@/lib/auth-client"
+import { Spinner } from "@workspace/ui/components/spinner"
+import { organization } from "@/lib/auth/client"
 
 export const Route = createFileRoute("/(authorized)/create-organization/")({
   component: Page,
@@ -31,14 +31,16 @@ function Page() {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
 
-  const createOrganizationSchema = z.object({
+  const createOrganizationFormSchema = z.object({
     name: z.string().trim().min(1, "Organization name is required"),
   })
 
-  type CreateOrganizationFormValues = z.infer<typeof createOrganizationSchema>
+  type CreateOrganizationFormValues = z.infer<
+    typeof createOrganizationFormSchema
+  >
 
   const form = useForm<CreateOrganizationFormValues>({
-    resolver: zodResolver(createOrganizationSchema),
+    resolver: zodResolver(createOrganizationFormSchema),
     defaultValues: {
       name: "",
     },
@@ -47,17 +49,15 @@ function Page() {
   const createOrganizationMutation = useMutation({
     mutationFn: async (values: CreateOrganizationFormValues) => {
       const result = await organization.create({
-        name: values.name.trim(),
+        name: values.name,
         slug: crypto.randomUUID(),
-        keepCurrentActiveOrganization: false,
       })
-
       if (result.error) {
         throw new Error(result.error.message)
       }
     },
     onSuccess: async () => {
-      await queryClient.refetchQueries({ queryKey: ["session"] })
+      await queryClient.refetchQueries()
       toast.success("Organization created")
       navigate({ to: "/" })
     },
@@ -67,46 +67,46 @@ function Page() {
   })
 
   return (
-    <div className="flex h-screen w-full items-center justify-center p-6">
-      <Card className="w-full max-w-sm">
-        <CardHeader>
-          <CardTitle>Create organization</CardTitle>
-          <CardDescription>
-            Enter a name below to create an organization
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form
-            onSubmit={form.handleSubmit((values) =>
-              createOrganizationMutation.mutate(values)
-            )}
-            noValidate
-          >
-            <FieldGroup>
-              <Controller
-                name="name"
-                control={form.control}
-                render={({ field, fieldState }) => (
-                  <Field data-invalid={fieldState.invalid}>
-                    <FieldLabel htmlFor={field.name}>
-                      Organization name
-                    </FieldLabel>
-                    <Input
-                      {...field}
-                      id={field.name}
-                      placeholder="Acme Inc"
-                      aria-invalid={fieldState.invalid}
-                      autoFocus
-                      disabled={createOrganizationMutation.isPending}
-                    />
-                    {fieldState.invalid && (
-                      <FieldError errors={[fieldState.error]} />
-                    )}
-                  </Field>
-                )}
-              />
+    <>
+      <title>Create organization</title>
+      <div className="flex h-screen w-full items-center justify-center p-6">
+        <Card className="w-full max-w-sm">
+          <CardHeader>
+            <CardTitle className="text-xl">Create organization</CardTitle>
+            <CardDescription>Create an organization</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form
+              onSubmit={form.handleSubmit((values) =>
+                createOrganizationMutation.mutate(values)
+              )}
+              noValidate
+            >
+              <FieldGroup>
+                <Controller
+                  name="name"
+                  control={form.control}
+                  render={({ field, fieldState }) => (
+                    <Field data-invalid={fieldState.invalid}>
+                      <FieldLabel htmlFor={field.name}>
+                        Organization name
+                      </FieldLabel>
+                      <Input
+                        {...field}
+                        id={field.name}
+                        placeholder="Acme Inc"
+                        autoComplete="organization"
+                        autoFocus
+                        aria-invalid={fieldState.invalid}
+                        disabled={createOrganizationMutation.isPending}
+                      />
+                      {fieldState.invalid && (
+                        <FieldError errors={[fieldState.error]} />
+                      )}
+                    </Field>
+                  )}
+                />
 
-              <Field>
                 <Button
                   type="submit"
                   disabled={createOrganizationMutation.isPending}
@@ -117,11 +117,11 @@ function Page() {
                     "Create organization"
                   )}
                 </Button>
-              </Field>
-            </FieldGroup>
-          </form>
-        </CardContent>
-      </Card>
-    </div>
+              </FieldGroup>
+            </form>
+          </CardContent>
+        </Card>
+      </div>
+    </>
   )
 }

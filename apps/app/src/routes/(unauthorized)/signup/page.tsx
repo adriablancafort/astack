@@ -21,7 +21,7 @@ import {
 import { Input } from "@workspace/ui/components/input"
 import { toast } from "@workspace/ui/components/sonner"
 import { Spinner } from "@/components/spinner"
-import { signUp } from "@/lib/auth-client"
+import { signUp } from "@/lib/auth/client"
 
 export const Route = createFileRoute("/(unauthorized)/signup/")({
   component: Page,

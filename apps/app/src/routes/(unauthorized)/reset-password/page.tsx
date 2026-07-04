@@ -21,7 +21,7 @@ import {
 import { Input } from "@workspace/ui/components/input"
 import { toast } from "@workspace/ui/components/sonner"
 import { Spinner } from "@/components/spinner"
-import { requestPasswordReset } from "@/lib/auth-client"
+import { requestPasswordReset } from "@/lib/auth/client"
 import { env } from "@/lib/env"
 
 export const Route = createFileRoute("/(unauthorized)/reset-password/")({

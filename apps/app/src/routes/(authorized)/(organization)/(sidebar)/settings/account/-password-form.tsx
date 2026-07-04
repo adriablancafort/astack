@@ -16,7 +16,7 @@ import {
 import { Input } from "@workspace/ui/components/input"
 import { toast } from "@workspace/ui/components/sonner"
 import { Spinner } from "@/components/spinner"
-import { changePassword } from "@/lib/auth-client"
+import { changePassword } from "@/lib/auth/client"
 
 export function AccountPasswordForm() {
   const passwordSchema = z

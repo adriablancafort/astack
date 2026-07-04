@@ -10,12 +10,12 @@ import {
 import { Separator } from "@workspace/ui/components/separator"
 import { SidebarTrigger } from "@workspace/ui/components/sidebar"
 import { Skeleton } from "@workspace/ui/components/skeleton"
-import { useActiveOrganization } from "@/lib/auth-client"
+import { useActiveOrganization } from "@/lib/auth/client"
 import { DeleteOrganizationForm } from "./-delete-organization-form"
 import { OrganizationInformationForm } from "./-organization-information-form"
 
 export const Route = createFileRoute(
-  "/(authorized)/(sidebar)/settings/organization/"
+  "/(authorized)/(organization)/(sidebar)/settings/organization/"
 )({
   component: Page,
 })

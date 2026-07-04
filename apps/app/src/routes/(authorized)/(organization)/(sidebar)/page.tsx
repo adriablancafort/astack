@@ -11,9 +11,11 @@ import {
 import { Separator } from "@workspace/ui/components/separator"
 import { SidebarTrigger } from "@workspace/ui/components/sidebar"
 
-export const Route = createFileRoute("/(authorized)/(sidebar)/")({
-  component: Page,
-})
+export const Route = createFileRoute("/(authorized)/(organization)/(sidebar)/")(
+  {
+    component: Page,
+  }
+)
 
 function Page() {
   return (

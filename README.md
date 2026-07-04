@@ -81,7 +81,6 @@ Authentication is implemented with Better Auth.
 - The server mounts auth handlers at `/api/auth/*`.
 - The frontend uses the Better Auth React client from `apps/app/src/lib/auth-client.ts`.
 - Session-based auth works across frontend and API because requests include cookies.
-- Route protection is handled in the authorized layout by checking `useSession()` before rendering protected pages.
 
 The current boilerplate is already wired for email/password auth.
 

@@ -1,6 +1,6 @@
 import { createMiddleware } from "hono/factory"
 
-import { auth } from "@/lib/auth"
+import { auth } from "@/lib/auth/config"
 
 export const requireOrganization = createMiddleware<{
   Variables: { organizationId: string }

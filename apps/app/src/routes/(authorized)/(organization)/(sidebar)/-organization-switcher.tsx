@@ -1,6 +1,10 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { Navigate, useNavigate } from "@tanstack/react-router"
-import { ChevronsUpDownIcon, PlusIcon } from "lucide-react"
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { useNavigate } from "@tanstack/react-router"
+import {
+  ChevronsUpDownIcon,
+  GalleryVerticalEndIcon,
+  PlusIcon,
+} from "lucide-react"
 
 import {
   DropdownMenu,
@@ -18,43 +22,37 @@ import {
   useSidebar,
 } from "@workspace/ui/components/sidebar"
 import { toast } from "@workspace/ui/components/sonner"
+import { organization } from "@/lib/auth/client"
 import {
-  organization,
-  useActiveOrganization,
-  useListOrganizations,
-} from "@/lib/auth-client"
+  fullOrganizationQueryOptions,
+  organizationsListQueryOptions,
+} from "@/lib/auth/organization"
 
-export function NavOrganization() {
+export function OrganizationSwitcher() {
   const { isMobile } = useSidebar()
-  const navigate = useNavigate()
   const queryClient = useQueryClient()
-  const { data: activeOrganization, isPending: isActiveOrganizationPending } =
-    useActiveOrganization()
-  const { data: organizations } = useListOrganizations()
-  const organizationName = activeOrganization?.name || "Loading..."
+  const navigate = useNavigate()
 
-  const setActiveOrganizationMutation = useMutation({
+  const { data: activeOrganization } = useQuery(fullOrganizationQueryOptions())
+  const { data: organizations } = useQuery(organizationsListQueryOptions())
+
+  const setActiveMutation = useMutation({
     mutationFn: async (organizationId: string) => {
       const result = await organization.setActive({ organizationId })
-
       if (result.error) {
         throw new Error(result.error.message)
       }
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries()
+    onSuccess: async () => {
+      await queryClient.refetchQueries({ type: "active" })
     },
     onError: (error) => {
       toast.error(error.message)
     },
   })
 
-  function handleAddOrganization() {
-    navigate({ to: "/create-organization" })
-  }
-
-  if (!isActiveOrganizationPending && !activeOrganization) {
-    return <Navigate to="/create-organization" replace />
+  if (!activeOrganization) {
+    return null
   }
 
   return (
@@ -70,10 +68,12 @@ export function NavOrganization() {
             }
           >
             <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-              {organizationName[0]?.toUpperCase()}
+              <GalleryVerticalEndIcon className="size-4" />
             </div>
             <div className="grid flex-1 text-left text-sm leading-tight">
-              <span className="truncate font-medium">{organizationName}</span>
+              <span className="truncate font-medium">
+                {activeOrganization.name}
+              </span>
             </div>
             <ChevronsUpDownIcon className="ml-auto" />
           </DropdownMenuTrigger>
@@ -87,26 +87,24 @@ export function NavOrganization() {
               <DropdownMenuLabel className="text-xs text-muted-foreground">
                 Organizations
               </DropdownMenuLabel>
-              {organizations &&
-                organizations.map((org) => (
-                  <DropdownMenuItem
-                    key={org.id}
-                    onClick={() => setActiveOrganizationMutation.mutate(org.id)}
-                    disabled={setActiveOrganizationMutation.isPending}
-                    className="gap-2 p-2"
-                  >
-                    <div className="flex size-6 items-center justify-center rounded-md border">
-                      {org.name[0]?.toUpperCase()}
-                    </div>
-                    {org.name}
-                  </DropdownMenuItem>
-                ))}
+              {organizations?.map((org) => (
+                <DropdownMenuItem
+                  key={org.id}
+                  onClick={() => setActiveMutation.mutate(org.id)}
+                  className="gap-2 p-2"
+                >
+                  <div className="flex size-6 items-center justify-center rounded-md border">
+                    <GalleryVerticalEndIcon className="size-4 shrink-0" />
+                  </div>
+                  {org.name}
+                </DropdownMenuItem>
+              ))}
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
               <DropdownMenuItem
                 className="gap-2 p-2"
-                onClick={handleAddOrganization}
+                onClick={() => navigate({ to: "/create-organization" })}
               >
                 <div className="flex size-6 items-center justify-center rounded-md border bg-transparent">
                   <PlusIcon className="size-4" />

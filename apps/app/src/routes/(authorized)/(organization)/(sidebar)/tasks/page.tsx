@@ -74,7 +74,9 @@ const tasksQueryOptions = queryOptions({
   queryFn: () => api.get<ListTasksResponse>("/api/tasks"),
 })
 
-export const Route = createFileRoute("/(authorized)/(sidebar)/tasks/")({
+export const Route = createFileRoute(
+  "/(authorized)/(organization)/(sidebar)/tasks/"
+)({
   loader: ({ context: { queryClient } }) =>
     queryClient.ensureQueryData(tasksQueryOptions),
   component: Page,

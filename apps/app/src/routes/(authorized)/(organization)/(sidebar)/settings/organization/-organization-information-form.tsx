@@ -16,7 +16,7 @@ import {
 import { Input } from "@workspace/ui/components/input"
 import { toast } from "@workspace/ui/components/sonner"
 import { Spinner } from "@/components/spinner"
-import { organization } from "@/lib/auth-client"
+import { organization } from "@/lib/auth/client"
 
 type OrganizationInfo = {
   id: string

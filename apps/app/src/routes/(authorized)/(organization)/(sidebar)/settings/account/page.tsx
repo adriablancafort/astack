@@ -14,7 +14,7 @@ import { AccountPasswordForm } from "./-password-form"
 import { UserInformationForm } from "./-user-information-form"
 
 export const Route = createFileRoute(
-  "/(authorized)/(sidebar)/settings/account/"
+  "/(authorized)/(organization)/(sidebar)/settings/account/"
 )({
   component: Page,
 })

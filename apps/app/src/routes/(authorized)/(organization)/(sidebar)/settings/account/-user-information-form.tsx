@@ -16,7 +16,7 @@ import {
 import { Input } from "@workspace/ui/components/input"
 import { toast } from "@workspace/ui/components/sonner"
 import { Spinner } from "@/components/spinner"
-import { updateUser, useSession } from "@/lib/auth-client"
+import { updateUser, useSession } from "@/lib/auth/client"
 
 export function UserInformationForm() {
   const queryClient = useQueryClient()
