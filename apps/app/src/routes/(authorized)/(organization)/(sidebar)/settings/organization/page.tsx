@@ -1,3 +1,4 @@
+import { useQuery } from "@tanstack/react-query"
 import { createFileRoute } from "@tanstack/react-router"
 
 import {
@@ -10,9 +11,9 @@ import {
 import { Separator } from "@workspace/ui/components/separator"
 import { SidebarTrigger } from "@workspace/ui/components/sidebar"
 import { Skeleton } from "@workspace/ui/components/skeleton"
-import { useActiveOrganization } from "@/lib/auth/client"
-import { DeleteOrganizationForm } from "./-delete-organization-form"
-import { OrganizationInformationForm } from "./-organization-information-form"
+import { DeleteOrganizationForm } from "@/components/organization/delete-organization-form"
+import { OrganizationInformationForm } from "@/components/organization/organization-information-form"
+import { fullOrganizationQueryOptions } from "@/lib/auth/organization"
 
 export const Route = createFileRoute(
   "/(authorized)/(organization)/(sidebar)/settings/organization/"
@@ -20,18 +21,10 @@ export const Route = createFileRoute(
   component: Page,
 })
 
-type OrganizationSettingsData = {
-  id: string
-  name: string
-  slug: string
-  members: Array<{ user: { id: string }; role: string }>
-}
-
 function Page() {
-  const { data: activeOrganization, isPending: isOrganizationPending } =
-    useActiveOrganization()
-
-  const org = activeOrganization as unknown as OrganizationSettingsData | null
+  const { data: organization, isPending: isOrganizationPending } = useQuery(
+    fullOrganizationQueryOptions()
+  )
 
   if (isOrganizationPending) {
     return (
@@ -66,7 +59,7 @@ function Page() {
     )
   }
 
-  if (!org) {
+  if (!organization) {
     return null
   }
 
@@ -94,9 +87,8 @@ function Page() {
       </header>
 
       <div className="mx-auto my-8 w-full max-w-lg space-y-8 px-4">
-        <OrganizationInformationForm org={org} />
-
-        <DeleteOrganizationForm organizationId={org.id} />
+        <OrganizationInformationForm org={organization} />
+        <DeleteOrganizationForm organizationId={organization.id} />
       </div>
     </div>
   )

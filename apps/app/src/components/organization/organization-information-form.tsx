@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useMutation } from "@tanstack/react-query"
+import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { Controller, useForm } from "react-hook-form"
 import * as z from "zod"
 
@@ -43,6 +43,8 @@ export function OrganizationInformationForm({
 }: {
   org: OrganizationInfo
 }) {
+  const queryClient = useQueryClient()
+
   const form = useForm<GeneralFormValues>({
     resolver: zodResolver(generalSchema),
     defaultValues: {
@@ -62,7 +64,11 @@ export function OrganizationInformationForm({
         throw new Error(result.error.message)
       }
     },
-    onSuccess: () => {
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["full-organization"] }),
+        queryClient.invalidateQueries({ queryKey: ["organizations-list"] }),
+      ])
       toast.success("Organization updated")
     },
     onError: (error) => {

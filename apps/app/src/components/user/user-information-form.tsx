@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { Controller, useForm } from "react-hook-form"
 import * as z from "zod"
 
@@ -16,7 +16,8 @@ import {
 import { Input } from "@workspace/ui/components/input"
 import { toast } from "@workspace/ui/components/sonner"
 import { Spinner } from "@/components/spinner"
-import { updateUser, useSession } from "@/lib/auth/client"
+import { updateUser } from "@/lib/auth/client"
+import { sessionQueryOptions } from "@/lib/auth/session"
 
 export function UserInformationForm() {
   const queryClient = useQueryClient()
@@ -27,7 +28,9 @@ export function UserInformationForm() {
 
   type UserInformationFormValues = z.infer<typeof userInformationSchema>
 
-  const { data: session, isPending: isSessionPending } = useSession()
+  const { data: session, isPending: isSessionPending } = useQuery(
+    sessionQueryOptions()
+  )
 
   const name = session?.user.name ?? ""
   const email = session?.user.email ?? ""

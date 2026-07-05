@@ -9,9 +9,9 @@ import {
 } from "@workspace/ui/components/breadcrumb"
 import { Separator } from "@workspace/ui/components/separator"
 import { SidebarTrigger } from "@workspace/ui/components/sidebar"
-import { DeleteAccountForm } from "./-delete-user-form"
-import { AccountPasswordForm } from "./-password-form"
-import { UserInformationForm } from "./-user-information-form"
+import { DeleteAccountForm } from "@/components/user/delete-user-form"
+import { AccountPasswordForm } from "@/components/user/password-form"
+import { UserInformationForm } from "@/components/user/user-information-form"
 
 export const Route = createFileRoute(
   "/(authorized)/(organization)/(sidebar)/settings/account/"

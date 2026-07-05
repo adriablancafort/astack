@@ -1,4 +1,4 @@
-import { useMutation } from "@tanstack/react-query"
+import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { Trash2Icon } from "lucide-react"
 
 import { Button } from "@workspace/ui/components/button"
@@ -15,6 +15,8 @@ import { Spinner } from "@/components/spinner"
 import { deleteUser } from "@/lib/auth/client"
 
 export function DeleteAccountForm() {
+  const queryClient = useQueryClient()
+
   const deleteUserMutation = useMutation({
     mutationFn: async () => {
       const result = await deleteUser({
@@ -25,7 +27,8 @@ export function DeleteAccountForm() {
         throw new Error(result.error.message)
       }
     },
-    onSuccess: () => {
+    onSuccess: async () => {
+      await queryClient.refetchQueries({ queryKey: ["session"] })
       toast.success("Account deleted")
     },
     onError: (error) => {

@@ -20,7 +20,7 @@ import {
 } from "@workspace/ui/components/field"
 import { Input } from "@workspace/ui/components/input"
 import { toast } from "@workspace/ui/components/sonner"
-import { Spinner } from "@workspace/ui/components/spinner"
+import { Spinner } from "@/components/spinner"
 import { organization } from "@/lib/auth/client"
 
 export const Route = createFileRoute("/(authorized)/create-organization/")({

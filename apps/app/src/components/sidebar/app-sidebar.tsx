@@ -14,8 +14,8 @@ import {
   SidebarMenuItem,
   SidebarRail,
 } from "@workspace/ui/components/sidebar"
-import { NavUser } from "./-nav-user"
-import { OrganizationSwitcher } from "./-organization-switcher"
+import { NavUser } from "./nav-user"
+import { OrganizationSwitcher } from "./organization-switcher"
 
 const data = {
   navMain: [
