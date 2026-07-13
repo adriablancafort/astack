@@ -1,6 +1,11 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router"
+import {
+  createFileRoute,
+  Link,
+  useLocation,
+  useNavigate,
+} from "@tanstack/react-router"
 import { Controller, useForm } from "react-hook-form"
 import * as z from "zod"
 
@@ -19,8 +24,9 @@ import {
   FieldLabel,
 } from "@workspace/ui/components/field"
 import { Input } from "@workspace/ui/components/input"
+import { PasswordInput } from "@workspace/ui/components/password-input"
 import { toast } from "@workspace/ui/components/sonner"
-import { Spinner } from "@/components/spinner"
+import { Spinner } from "@workspace/ui/components/spinner"
 import { signIn } from "@/lib/auth/client"
 
 export const Route = createFileRoute("/(unauthorized)/signin/")({
@@ -29,6 +35,10 @@ export const Route = createFileRoute("/(unauthorized)/signin/")({
 
 function Page() {
   const navigate = useNavigate()
+  const { searchStr } = useLocation()
+  const redirect = new URLSearchParams(searchStr).get("redirect") ?? undefined
+  const email =
+    new URLSearchParams(redirect?.split("?")[1] ?? "").get("email") ?? ""
   const queryClient = useQueryClient()
 
   const signInFormSchema = z.object({
@@ -41,7 +51,7 @@ function Page() {
   const form = useForm<SignInFormValues>({
     resolver: zodResolver(signInFormSchema),
     defaultValues: {
-      email: "",
+      email,
       password: "",
     },
   })
@@ -59,6 +69,12 @@ function Page() {
     },
     onSuccess: async () => {
       await queryClient.refetchQueries({ queryKey: ["session"] })
+
+      if (redirect) {
+        navigate({ href: redirect })
+        return
+      }
+
       navigate({ to: "/" })
     },
     onError: (error) => {
@@ -67,89 +83,95 @@ function Page() {
   })
 
   return (
-    <div className="flex h-screen w-full items-center justify-center p-6">
-      <Card className="w-full max-w-sm">
-        <CardHeader>
-          <CardTitle className="text-2xl">Sign in</CardTitle>
-          <CardDescription>
-            Enter your email and password below to sign in
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form
-            onSubmit={form.handleSubmit((values) =>
-              signInMutation.mutate(values)
-            )}
-            noValidate
-          >
-            <FieldGroup>
-              <Controller
-                name="email"
-                control={form.control}
-                render={({ field, fieldState }) => (
-                  <Field data-invalid={fieldState.invalid}>
-                    <FieldLabel htmlFor={field.name}>Email</FieldLabel>
-                    <Input
-                      {...field}
-                      id={field.name}
-                      type="email"
-                      placeholder="mail@example.com"
-                      autoComplete="email"
-                      aria-invalid={fieldState.invalid}
-                      disabled={signInMutation.isPending}
-                    />
-                    {fieldState.invalid && (
-                      <FieldError errors={[fieldState.error]} />
-                    )}
-                  </Field>
-                )}
-              />
+    <>
+      <title>Sign in</title>
+      <div className="flex h-screen w-full items-center justify-center p-6">
+        <Card className="w-full max-w-sm">
+          <CardHeader>
+            <CardTitle className="text-xl">Sign in</CardTitle>
+            <CardDescription>
+              Enter your email and password below to sign in
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form
+              onSubmit={form.handleSubmit((values) =>
+                signInMutation.mutate(values)
+              )}
+              noValidate
+            >
+              <FieldGroup>
+                <Controller
+                  name="email"
+                  control={form.control}
+                  render={({ field, fieldState }) => (
+                    <Field data-invalid={fieldState.invalid}>
+                      <FieldLabel htmlFor={field.name}>Email</FieldLabel>
+                      <Input
+                        {...field}
+                        id={field.name}
+                        type="email"
+                        placeholder="name@example.com"
+                        autoComplete="email"
+                        aria-invalid={fieldState.invalid}
+                        disabled={signInMutation.isPending || !!email}
+                      />
+                      {fieldState.invalid && (
+                        <FieldError errors={[fieldState.error]} />
+                      )}
+                    </Field>
+                  )}
+                />
 
-              <Controller
-                name="password"
-                control={form.control}
-                render={({ field, fieldState }) => (
-                  <Field data-invalid={fieldState.invalid}>
-                    <div className="flex items-center">
-                      <FieldLabel htmlFor={field.name}>Password</FieldLabel>
-                      <Link
-                        to="/reset-password"
-                        className="ml-auto inline-block text-sm underline underline-offset-3"
-                      >
-                        Forgot your password?
-                      </Link>
-                    </div>
-                    <Input
-                      {...field}
-                      id={field.name}
-                      type="password"
-                      autoComplete="current-password"
-                      aria-invalid={fieldState.invalid}
-                      disabled={signInMutation.isPending}
-                    />
-                    {fieldState.invalid && (
-                      <FieldError errors={[fieldState.error]} />
-                    )}
-                  </Field>
-                )}
-              />
+                <Controller
+                  name="password"
+                  control={form.control}
+                  render={({ field, fieldState }) => (
+                    <Field data-invalid={fieldState.invalid}>
+                      <div className="flex items-center">
+                        <FieldLabel htmlFor={field.name}>Password</FieldLabel>
+                        <Link
+                          to="/reset-password"
+                          className="ml-auto inline-block text-sm underline"
+                        >
+                          Forgot your password?
+                        </Link>
+                      </div>
+                      <PasswordInput
+                        {...field}
+                        id={field.name}
+                        autoComplete="current-password"
+                        aria-invalid={fieldState.invalid}
+                        disabled={signInMutation.isPending}
+                      />
+                      {fieldState.invalid && (
+                        <FieldError errors={[fieldState.error]} />
+                      )}
+                    </Field>
+                  )}
+                />
 
-              <Button type="submit" disabled={signInMutation.isPending}>
-                {signInMutation.isPending ? <Spinner /> : "Sign in"}
-              </Button>
+                <Button type="submit" disabled={signInMutation.isPending}>
+                  {signInMutation.isPending ? <Spinner /> : "Sign in"}
+                </Button>
 
-              <div className="text-center text-sm">
-                <span className="text-muted-foreground">
-                  Don't have an account?{" "}
-                </span>
-                <Link to="/signup" className="underline underline-offset-3">
-                  Sign up
-                </Link>
-              </div>
-            </FieldGroup>
-          </form>
-        </CardContent>
-      </Card>
-    </div>
+                <div className="text-center text-sm">
+                  <span className="text-muted-foreground">
+                    Don't have an account?{" "}
+                  </span>
+                  <Link
+                    to="/signup"
+                    search={{ redirect }}
+                    className="underline"
+                  >
+                    Sign up
+                  </Link>
+                </div>
+              </FieldGroup>
+            </form>
+          </CardContent>
+        </Card>
+      </div>
+    </>
   )
 }

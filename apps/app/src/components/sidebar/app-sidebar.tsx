@@ -1,67 +1,24 @@
-import { Link, useLocation } from "@tanstack/react-router"
-import { LayoutDashboardIcon, ListTodoIcon } from "lucide-react"
 import * as React from "react"
 
 import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
-  SidebarGroup,
-  SidebarGroupLabel,
   SidebarHeader,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
   SidebarRail,
 } from "@workspace/ui/components/sidebar"
-import { NavUser } from "./nav-user"
-import { OrganizationSwitcher } from "./organization-switcher"
-
-const data = {
-  navMain: [
-    {
-      title: "Dashboard",
-      url: "/",
-      icon: <LayoutDashboardIcon />,
-    },
-    {
-      title: "Tasks",
-      url: "/tasks",
-      icon: <ListTodoIcon />,
-    },
-  ],
-}
+import { NavMain } from "@/components/sidebar/nav-main"
+import { NavUser } from "@/components/sidebar/nav-user"
+import { OrganizationSwitcher } from "@/components/sidebar/organization-switcher"
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const location = useLocation()
-
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
         <OrganizationSwitcher />
       </SidebarHeader>
       <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupLabel>Platform</SidebarGroupLabel>
-          <SidebarMenu>
-            {data.navMain.map((item) => (
-              <SidebarMenuItem key={item.title}>
-                <SidebarMenuButton
-                  render={<Link to={item.url} />}
-                  tooltip={item.title}
-                  isActive={
-                    item.url === "/"
-                      ? location.pathname === "/"
-                      : location.pathname.startsWith(item.url)
-                  }
-                >
-                  {item.icon}
-                  <span>{item.title}</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            ))}
-          </SidebarMenu>
-        </SidebarGroup>
+        <NavMain />
       </SidebarContent>
       <SidebarFooter>
         <NavUser />

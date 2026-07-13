@@ -20,7 +20,7 @@ import {
 } from "@workspace/ui/components/field"
 import { Input } from "@workspace/ui/components/input"
 import { toast } from "@workspace/ui/components/sonner"
-import { Spinner } from "@/components/spinner"
+import { Spinner } from "@workspace/ui/components/spinner"
 import { organization } from "@/lib/auth/client"
 
 export const Route = createFileRoute("/(authorized)/create-organization/")({
@@ -59,7 +59,7 @@ function Page() {
     onSuccess: async () => {
       await queryClient.refetchQueries()
       toast.success("Organization created")
-      navigate({ to: "/" })
+      navigate({ to: "/invite-members" })
     },
     onError: (error) => {
       toast.error(error.message)
@@ -70,7 +70,7 @@ function Page() {
     <>
       <title>Create organization</title>
       <div className="flex h-screen w-full items-center justify-center p-6">
-        <Card className="w-full max-w-sm">
+        <Card className="w-full max-w-md">
           <CardHeader>
             <CardTitle className="text-xl">Create organization</CardTitle>
             <CardDescription>Create an organization</CardDescription>

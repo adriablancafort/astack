@@ -3,7 +3,8 @@ import { drizzleAdapter } from "better-auth/adapters/drizzle"
 import { organization } from "better-auth/plugins"
 
 import { db } from "@workspace/db/client"
-import * as schema from "@workspace/db/schema"
+import * as schema from "@workspace/db/schema/auth"
+import { ac, admin, member, owner } from "@workspace/shared/auth/permissions"
 import { env } from "@/lib/env"
 
 export const auth = betterAuth({
@@ -11,6 +12,11 @@ export const auth = betterAuth({
     provider: "pg",
     schema,
   }),
+  user: {
+    deleteUser: {
+      enabled: true,
+    },
+  },
   emailAndPassword: {
     enabled: true,
     async sendResetPassword(data) {
@@ -21,15 +27,29 @@ export const auth = betterAuth({
       })
     },
   },
-  user: {
-    deleteUser: {
-      enabled: true,
-    },
-  },
+  plugins: [
+    organization({
+      ac,
+      roles: {
+        owner,
+        admin,
+        member,
+      },
+      async sendInvitationEmail(data) {
+        const inviteLink = `${env.FRONTEND_URL}/join-organization?invitationId=${data.id}&email=${encodeURIComponent(data.email)}`
+
+        console.log("send-organization-invitation-email", {
+          to: data.email,
+          url: inviteLink,
+          organizationName: data.organization.name,
+        })
+      },
+    }),
+  ],
   telemetry: {
     enabled: false,
   },
   baseURL: env.API_URL,
   trustedOrigins: [env.FRONTEND_URL],
-  plugins: [organization()],
+  secret: env.BETTER_AUTH_SECRET,
 })

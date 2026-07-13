@@ -1,16 +1,29 @@
-import { createFileRoute, Outlet, redirect } from "@tanstack/react-router"
+import { useQuery } from "@tanstack/react-query"
+import { createFileRoute, Navigate, Outlet } from "@tanstack/react-router"
 
 import { fullOrganizationQueryOptions } from "@/lib/auth/organization"
 
 export const Route = createFileRoute("/(authorized)/(organization)")({
-  beforeLoad: async ({ context }) => {
-    const organization = await context.queryClient.ensureQueryData(
-      fullOrganizationQueryOptions()
-    )
-
-    if (!organization) {
-      throw redirect({ to: "/select-organization" })
-    }
-  },
-  component: Outlet,
+  component: Layout,
 })
+
+function OrganizationRedirectGuard() {
+  const { data: organization, isSuccess } = useQuery(
+    fullOrganizationQueryOptions()
+  )
+
+  if (isSuccess && !organization) {
+    return <Navigate to="/select-organization" />
+  }
+
+  return null
+}
+
+function Layout() {
+  return (
+    <>
+      <OrganizationRedirectGuard />
+      <Outlet />
+    </>
+  )
+}

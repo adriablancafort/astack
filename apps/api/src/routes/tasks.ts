@@ -2,136 +2,125 @@ import { and, desc, eq } from "drizzle-orm"
 import { Hono } from "hono"
 
 import { db } from "@workspace/db/client"
-import { task } from "@workspace/db/schema"
+import { task } from "@workspace/db/schema/tasks"
 import {
   createTaskRequestSchema,
-  taskIdParamRequestSchema,
+  nullableDescription,
+  taskIdParamsSchema,
   updateTaskRequestSchema,
 } from "@workspace/shared/api/tasks/schemas"
 import type {
-  DeleteTaskResponse,
-  ListTasksResponse,
-  Task,
+  TaskListResponse,
   TaskResponse,
 } from "@workspace/shared/api/tasks/types"
-import { requireOrganization } from "@/lib/organization"
+import { requireOrganization, requirePermission } from "@/lib/auth/organization"
 import { validator } from "@/lib/validator"
 
-export const tasks = new Hono()
+export const taskRoutes = new Hono()
 
-function toTask(row: typeof task.$inferSelect): Task {
-  return {
-    id: row.id,
-    title: row.title,
-    description: row.description,
-    status: row.status,
-    createdAt: row.createdAt.toISOString(),
-    updatedAt: row.updatedAt.toISOString(),
-  }
-}
-
-function toNullableDescription(value: string | undefined) {
-  if (value === undefined) {
-    return undefined
-  }
-
-  return value.length > 0 ? value : null
-}
-
-tasks.get("/", requireOrganization, async (c) => {
+taskRoutes.get("/", requireOrganization, async (c) => {
   const organizationId = c.get("organizationId")
 
-  const records = await db
-    .select()
-    .from(task)
-    .where(eq(task.organizationId, organizationId))
-    .orderBy(desc(task.createdAt))
+  try {
+    const tasks = await db
+      .select()
+      .from(task)
+      .where(eq(task.organizationId, organizationId))
+      .orderBy(desc(task.createdAt))
 
-  return c.json({ tasks: records.map(toTask) } satisfies ListTasksResponse)
+    return c.json(tasks satisfies TaskListResponse)
+  } catch {
+    return c.json({ error: "Failed to load tasks" }, 500)
+  }
 })
 
-tasks.post(
+taskRoutes.post(
   "/",
   requireOrganization,
+  requirePermission({ todo: ["create"] }),
   validator("json", createTaskRequestSchema),
   async (c) => {
     const organizationId = c.get("organizationId")
-    const payload = c.req.valid("json")
 
-    const [createdTask] = await db
-      .insert(task)
-      .values({
-        id: crypto.randomUUID(),
-        title: payload.title,
-        description: toNullableDescription(payload.description),
-        status: payload.status,
-        organizationId,
-      })
-      .returning()
+    try {
+      const payload = c.req.valid("json")
 
-    return c.json({ task: toTask(createdTask) } satisfies TaskResponse, 201)
+      const [createdTask] = await db
+        .insert(task)
+        .values({
+          id: crypto.randomUUID(),
+          organizationId,
+          title: payload.title,
+          description: nullableDescription(payload.description),
+          status: payload.status,
+        })
+        .returning()
+
+      return c.json(createdTask satisfies TaskResponse, 201)
+    } catch {
+      return c.json({ error: "Failed to create task" }, 500)
+    }
   }
 )
 
-tasks.patch(
-  "/:taskId",
+taskRoutes.patch(
+  "/:id",
   requireOrganization,
-  validator("param", taskIdParamRequestSchema),
+  requirePermission({ todo: ["update"] }),
+  validator("param", taskIdParamsSchema),
   validator("json", updateTaskRequestSchema),
   async (c) => {
     const organizationId = c.get("organizationId")
-    const params = c.req.valid("param")
-    const payload = c.req.valid("json")
+    const { id } = c.req.valid("param")
 
-    const updateValues: Partial<typeof task.$inferInsert> = {}
+    try {
+      const { description, ...rest } = c.req.valid("json")
 
-    if (payload.title !== undefined) {
-      updateValues.title = payload.title
+      const [updatedTask] = await db
+        .update(task)
+        .set({
+          ...rest,
+          ...(description !== undefined && {
+            description: nullableDescription(description),
+          }),
+          updatedAt: new Date(),
+        })
+        .where(and(eq(task.id, id), eq(task.organizationId, organizationId)))
+        .returning()
+
+      if (!updatedTask) {
+        return c.json({ error: "Task not found" }, 404)
+      }
+
+      return c.json(updatedTask satisfies TaskResponse)
+    } catch {
+      return c.json({ error: "Failed to update task" }, 500)
     }
-
-    if (payload.description !== undefined) {
-      updateValues.description = toNullableDescription(payload.description)
-    }
-
-    if (payload.status !== undefined) {
-      updateValues.status = payload.status
-    }
-
-    const [updatedTask] = await db
-      .update(task)
-      .set(updateValues)
-      .where(
-        and(eq(task.id, params.taskId), eq(task.organizationId, organizationId))
-      )
-      .returning()
-
-    if (!updatedTask) {
-      return c.json({ error: "Task not found" }, 404)
-    }
-
-    return c.json({ task: toTask(updatedTask) } satisfies TaskResponse)
   }
 )
 
-tasks.delete(
-  "/:taskId",
+taskRoutes.delete(
+  "/:id",
   requireOrganization,
-  validator("param", taskIdParamRequestSchema),
+  requirePermission({ todo: ["delete"] }),
+  validator("param", taskIdParamsSchema),
   async (c) => {
     const organizationId = c.get("organizationId")
-    const params = c.req.valid("param")
+    const { id } = c.req.valid("param")
 
-    const [deletedTask] = await db
-      .delete(task)
-      .where(
-        and(eq(task.id, params.taskId), eq(task.organizationId, organizationId))
-      )
-      .returning({ id: task.id })
+    try {
+      const [deletedTask] = await db
+        .delete(task)
+        .where(and(eq(task.id, id), eq(task.organizationId, organizationId)))
+        .returning()
 
-    if (!deletedTask) {
-      return c.json({ error: "Task not found" }, 404)
+      if (!deletedTask) {
+        return c.json({ error: "Task not found" }, 404)
+      }
+
+      return c.json(deletedTask satisfies TaskResponse)
+    } catch {
+      return c.json({ error: "Failed to delete task" }, 500)
     }
-
-    return c.json({ success: true } satisfies DeleteTaskResponse)
   }
 )

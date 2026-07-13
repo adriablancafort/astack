@@ -1,6 +1,12 @@
 import { z } from "zod"
 
-import { taskStatusValues } from "./types"
+import type { TaskStatus } from "./types"
+
+export const taskStatusValues: [TaskStatus, ...TaskStatus[]] = [
+  "todo",
+  "in_progress",
+  "done",
+]
 
 export const taskStatusSchema = z.enum(taskStatusValues)
 
@@ -31,6 +37,16 @@ export const updateTaskRequestSchema = z
     message: "Provide at least one field to update",
   })
 
-export const taskIdParamRequestSchema = z.object({
-  taskId: z.string().min(1, "Task id is required"),
+export const taskIdParamsSchema = z.object({
+  id: z.string().min(1, "Task id is required"),
 })
+
+export function nullableDescription(
+  value: string | undefined
+): string | null | undefined {
+  if (value === undefined) {
+    return undefined
+  }
+
+  return value || null
+}

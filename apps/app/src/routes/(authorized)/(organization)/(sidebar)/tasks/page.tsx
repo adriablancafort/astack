@@ -1,489 +1,64 @@
-import { zodResolver } from "@hookform/resolvers/zod"
-import {
-  queryOptions,
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from "@tanstack/react-query"
+import { useSuspenseQuery } from "@tanstack/react-query"
 import { createFileRoute } from "@tanstack/react-router"
-import {
-  type ColumnDef,
-  flexRender,
-  getCoreRowModel,
-  useReactTable,
-} from "@tanstack/react-table"
-import { PlusIcon } from "lucide-react"
-import { useMemo, useState } from "react"
-import { useForm } from "react-hook-form"
 
-import {
-  createTaskRequestSchema,
-  updateTaskRequestSchema,
-} from "@workspace/shared/api/tasks/schemas"
-import type {
-  CreateTaskRequest,
-  DeleteTaskResponse,
-  ListTasksResponse,
-  Task,
-  TaskResponse,
-  UpdateTaskRequest,
-} from "@workspace/shared/api/tasks/types"
+import type { TaskListResponse } from "@workspace/shared/api/tasks/types"
 import {
   Breadcrumb,
   BreadcrumbItem,
   BreadcrumbList,
   BreadcrumbPage,
 } from "@workspace/ui/components/breadcrumb"
-import { Button } from "@workspace/ui/components/button"
-import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@workspace/ui/components/dialog"
-import { Field, FieldError, FieldGroup } from "@workspace/ui/components/field"
-import { Input } from "@workspace/ui/components/input"
-import { Label } from "@workspace/ui/components/label"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@workspace/ui/components/select"
 import { Separator } from "@workspace/ui/components/separator"
 import { SidebarTrigger } from "@workspace/ui/components/sidebar"
-import { toast } from "@workspace/ui/components/sonner"
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@workspace/ui/components/table"
-import { Spinner } from "@/components/spinner"
+import { AddTaskForm } from "@/components/tasks/add-task-form"
+import { TasksDataTable } from "@/components/tasks/tasks-data-table"
 import { api } from "@/lib/api"
 
-const tasksQueryOptions = queryOptions({
-  queryKey: ["tasks"],
-  queryFn: () => api.get<ListTasksResponse>("/api/tasks"),
-})
+function queryOptions() {
+  return {
+    queryKey: ["tasks"],
+    queryFn: () => api.get<TaskListResponse>("/api/tasks"),
+  }
+}
 
 export const Route = createFileRoute(
   "/(authorized)/(organization)/(sidebar)/tasks/"
 )({
-  loader: ({ context: { queryClient } }) =>
-    queryClient.ensureQueryData(tasksQueryOptions),
   component: Page,
 })
 
-const statusLabels: Record<Task["status"], string> = {
-  todo: "To do",
-  in_progress: "In progress",
-  done: "Done",
-}
-
-type DataTableProps<TData, TValue> = {
-  columns: ColumnDef<TData, TValue>[]
-  data: TData[]
-}
-
-function DataTable<TData, TValue>({
-  columns,
-  data,
-}: DataTableProps<TData, TValue>) {
-  const table = useReactTable({
-    data,
-    columns,
-    getCoreRowModel: getCoreRowModel(),
-  })
-
+function Header() {
   return (
-    <div className="overflow-hidden rounded-md border">
-      <Table>
-        <TableHeader>
-          {table.getHeaderGroups().map((headerGroup) => (
-            <TableRow key={headerGroup.id}>
-              {headerGroup.headers.map((header) => (
-                <TableHead key={header.id}>
-                  {header.isPlaceholder
-                    ? null
-                    : flexRender(
-                        header.column.columnDef.header,
-                        header.getContext()
-                      )}
-                </TableHead>
-              ))}
-            </TableRow>
-          ))}
-        </TableHeader>
-        <TableBody>
-          {table.getRowModel().rows.length > 0 ? (
-            table.getRowModel().rows.map((row) => (
-              <TableRow key={row.id}>
-                {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id}>
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </TableCell>
-                ))}
-              </TableRow>
-            ))
-          ) : (
-            <TableRow>
-              <TableCell colSpan={columns.length} className="h-24 text-center">
-                No tasks yet.
-              </TableCell>
-            </TableRow>
-          )}
-        </TableBody>
-      </Table>
-    </div>
+    <header className="flex h-18 items-center gap-2 px-5">
+      <SidebarTrigger className="-ml-1" />
+      <Separator
+        orientation="vertical"
+        className="mr-2 data-[orientation=vertical]:h-4 data-[orientation=vertical]:self-center"
+      />
+      <Breadcrumb>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbPage>Tasks</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
+      <div className="ml-auto flex space-x-3">
+        <AddTaskForm />
+      </div>
+    </header>
   )
 }
 
 function Page() {
-  const queryClient = useQueryClient()
-  const [isCreateOpen, setIsCreateOpen] = useState(false)
-  const [editingTask, setEditingTask] = useState<Task | null>(null)
-  const [search, setSearch] = useState("")
-
-  const form = useForm<CreateTaskRequest>({
-    resolver: zodResolver(createTaskRequestSchema),
-    defaultValues: {
-      title: "",
-      description: "",
-      status: "todo",
-    },
-  })
-
-  const tasksQuery = useQuery({
-    ...tasksQueryOptions,
-  })
-
-  const createTaskMutation = useMutation({
-    mutationFn: (payload: CreateTaskRequest) =>
-      api.post<TaskResponse>("/api/tasks", { body: payload }),
-    onSuccess: () => {
-      toast.success("Task created")
-      form.reset({
-        title: "",
-        description: "",
-        status: "todo",
-      })
-      setIsCreateOpen(false)
-      queryClient.invalidateQueries({ queryKey: ["tasks"] })
-    },
-    onError: (error) => {
-      toast.error(error.message)
-    },
-  })
-
-  const editForm = useForm<UpdateTaskRequest>({
-    resolver: zodResolver(updateTaskRequestSchema),
-    defaultValues: {
-      title: "",
-      description: "",
-      status: "todo",
-    },
-  })
-
-  const updateTaskMutation = useMutation({
-    mutationFn: ({ id, payload }: { id: string; payload: UpdateTaskRequest }) =>
-      api.patch<TaskResponse>(`/api/tasks/${id}`, { body: payload }),
-    onSuccess: () => {
-      toast.success("Task updated")
-      setEditingTask(null)
-      queryClient.invalidateQueries({ queryKey: ["tasks"] })
-    },
-    onError: (error) => {
-      toast.error(error.message)
-    },
-  })
-
-  const deleteTaskMutation = useMutation({
-    mutationFn: (id: string) =>
-      api.delete<DeleteTaskResponse>(`/api/tasks/${id}`),
-    onSuccess: () => {
-      toast.success("Task deleted")
-      queryClient.invalidateQueries({ queryKey: ["tasks"] })
-    },
-    onError: (error) => {
-      toast.error(error.message)
-    },
-  })
-
-  const columns = useMemo<ColumnDef<Task>[]>(
-    () => [
-      {
-        accessorKey: "title",
-        header: "Title",
-      },
-      {
-        accessorKey: "description",
-        header: "Description",
-        cell: ({ row }) => {
-          return row.original.description || "-"
-        },
-      },
-      {
-        accessorKey: "status",
-        header: "Status",
-        cell: ({ row }) => {
-          return statusLabels[row.original.status]
-        },
-      },
-      {
-        accessorKey: "createdAt",
-        header: "Created",
-        cell: ({ row }) => {
-          return new Date(row.original.createdAt).toLocaleDateString()
-        },
-      },
-      {
-        id: "actions",
-        header: "Actions",
-        cell: ({ row }) => {
-          const currentTask = row.original
-
-          return (
-            <div className="flex items-center gap-2">
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => {
-                  editForm.reset({
-                    title: currentTask.title,
-                    description: currentTask.description ?? "",
-                    status: currentTask.status,
-                  })
-                  setEditingTask(currentTask)
-                }}
-              >
-                Edit
-              </Button>
-              <Button
-                size="sm"
-                variant="destructive"
-                disabled={deleteTaskMutation.isPending}
-                onClick={() => deleteTaskMutation.mutate(currentTask.id)}
-              >
-                Delete
-              </Button>
-            </div>
-          )
-        },
-      },
-    ],
-    [deleteTaskMutation.isPending, editForm]
-  )
-
-  const allTasks = tasksQuery.data?.tasks ?? []
-  const tasks = search.trim()
-    ? allTasks.filter(
-        (t) =>
-          t.title.toLowerCase().includes(search.toLowerCase()) ||
-          (t.description ?? "").toLowerCase().includes(search.toLowerCase())
-      )
-    : allTasks
+  const { data: tasks } = useSuspenseQuery(queryOptions())
 
   return (
-    <div className="flex min-h-screen flex-col">
-      <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
-        <div className="flex items-center gap-2 px-4">
-          <SidebarTrigger className="-ml-1" />
-          <Separator
-            orientation="vertical"
-            className="mr-2 data-[orientation=vertical]:h-4"
-          />
-          <Breadcrumb>
-            <BreadcrumbList>
-              <BreadcrumbItem>
-                <BreadcrumbPage>Tasks</BreadcrumbPage>
-              </BreadcrumbItem>
-            </BreadcrumbList>
-          </Breadcrumb>
-        </div>
-      </header>
-
-      <div className="flex flex-1 flex-col gap-4 p-4">
-        <div className="flex items-center gap-3">
-          <Input
-            placeholder="Search tasks..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="max-w-sm"
-          />
-
-          <div className="ml-auto">
-            <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
-              <DialogTrigger render={<Button variant="outline" />}>
-                <PlusIcon className="size-4" />
-                New task
-              </DialogTrigger>
-              <DialogContent className="sm:max-w-sm">
-                <form
-                  onSubmit={form.handleSubmit((values) =>
-                    createTaskMutation.mutate(values)
-                  )}
-                  noValidate
-                >
-                  <DialogHeader>
-                    <DialogTitle>Create task</DialogTitle>
-                    <DialogDescription>
-                      Add a task using the shared schema.
-                    </DialogDescription>
-                  </DialogHeader>
-
-                  <FieldGroup className="py-2">
-                    <Field data-invalid={!!form.formState.errors.title}>
-                      <Label htmlFor="title">Title</Label>
-                      <Input id="title" {...form.register("title")} />
-                      {form.formState.errors.title && (
-                        <FieldError errors={[form.formState.errors.title]} />
-                      )}
-                    </Field>
-
-                    <Field data-invalid={!!form.formState.errors.description}>
-                      <Label htmlFor="description">Description</Label>
-                      <Input
-                        id="description"
-                        {...form.register("description")}
-                      />
-                      {form.formState.errors.description && (
-                        <FieldError
-                          errors={[form.formState.errors.description]}
-                        />
-                      )}
-                    </Field>
-                  </FieldGroup>
-
-                  <DialogFooter>
-                    <DialogClose render={<Button variant="outline" />}>
-                      Cancel
-                    </DialogClose>
-                    <Button
-                      type="submit"
-                      disabled={createTaskMutation.isPending}
-                    >
-                      {createTaskMutation.isPending ? <Spinner /> : null}
-                      Create
-                    </Button>
-                  </DialogFooter>
-                </form>
-              </DialogContent>
-            </Dialog>
-          </div>
-        </div>
-
-        {tasksQuery.isLoading ? (
-          <div className="flex min-h-40 items-center justify-center rounded-md border">
-            <Spinner className="size-5 text-muted-foreground" />
-          </div>
-        ) : tasksQuery.isError ? (
-          <div className="rounded-md border border-destructive/20 bg-destructive/5 p-4 text-sm text-destructive">
-            {tasksQuery.error.message}
-          </div>
-        ) : (
-          <DataTable columns={columns} data={tasks} />
-        )}
+    <>
+      <title>Tasks</title>
+      <Header />
+      <div className="p-5 pt-0">
+        <TasksDataTable data={tasks} />
       </div>
-
-      <Dialog
-        open={!!editingTask}
-        onOpenChange={(open) => {
-          if (!open) {
-            setEditingTask(null)
-          }
-        }}
-      >
-        <DialogContent className="sm:max-w-sm">
-          <form
-            onSubmit={editForm.handleSubmit((values) => {
-              if (!editingTask) {
-                return
-              }
-
-              updateTaskMutation.mutate({ id: editingTask.id, payload: values })
-            })}
-            noValidate
-          >
-            <DialogHeader>
-              <DialogTitle>Edit task</DialogTitle>
-              <DialogDescription>
-                Update task fields and save.
-              </DialogDescription>
-            </DialogHeader>
-
-            <FieldGroup className="py-2">
-              <Field data-invalid={!!editForm.formState.errors.title}>
-                <Label htmlFor="edit-title">Title</Label>
-                <Input id="edit-title" {...editForm.register("title")} />
-                {editForm.formState.errors.title && (
-                  <FieldError errors={[editForm.formState.errors.title]} />
-                )}
-              </Field>
-
-              <Field data-invalid={!!editForm.formState.errors.description}>
-                <Label htmlFor="edit-description">Description</Label>
-                <Input
-                  id="edit-description"
-                  {...editForm.register("description")}
-                />
-                {editForm.formState.errors.description && (
-                  <FieldError
-                    errors={[editForm.formState.errors.description]}
-                  />
-                )}
-              </Field>
-
-              <Field data-invalid={!!editForm.formState.errors.status}>
-                <Label htmlFor="edit-status">Status</Label>
-                <Select
-                  value={editForm.watch("status")}
-                  onValueChange={(value) => {
-                    editForm.setValue(
-                      "status",
-                      value as UpdateTaskRequest["status"],
-                      {
-                        shouldDirty: true,
-                        shouldTouch: true,
-                        shouldValidate: true,
-                      }
-                    )
-                  }}
-                >
-                  <SelectTrigger id="edit-status" className="w-full">
-                    <SelectValue placeholder="Select status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="todo">To do</SelectItem>
-                    <SelectItem value="in_progress">In progress</SelectItem>
-                    <SelectItem value="done">Done</SelectItem>
-                  </SelectContent>
-                </Select>
-                {editForm.formState.errors.status && (
-                  <FieldError errors={[editForm.formState.errors.status]} />
-                )}
-              </Field>
-            </FieldGroup>
-
-            <DialogFooter>
-              <DialogClose render={<Button variant="outline" />}>
-                Cancel
-              </DialogClose>
-              <Button type="submit" disabled={updateTaskMutation.isPending}>
-                {updateTaskMutation.isPending ? <Spinner /> : null}
-                Save
-              </Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
-    </div>
+    </>
   )
 }

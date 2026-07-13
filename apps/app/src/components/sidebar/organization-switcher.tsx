@@ -1,10 +1,14 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { useNavigate } from "@tanstack/react-router"
+import {
+  useMutation,
+  useQueryClient,
+  useSuspenseQuery,
+} from "@tanstack/react-query"
 import {
   ChevronsUpDownIcon,
   GalleryVerticalEndIcon,
   PlusIcon,
 } from "lucide-react"
+import { Suspense, useState } from "react"
 
 import {
   DropdownMenu,
@@ -21,20 +25,38 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@workspace/ui/components/sidebar"
+import { Skeleton } from "@workspace/ui/components/skeleton"
 import { toast } from "@workspace/ui/components/sonner"
 import { organization } from "@/lib/auth/client"
 import {
   fullOrganizationQueryOptions,
   organizationsListQueryOptions,
 } from "@/lib/auth/organization"
+import { CreateOrganizationDialog } from "./create-organization-dialog"
+
+function OrganizationSwitcherSkeleton() {
+  return <Skeleton className="h-12 w-full" />
+}
 
 export function OrganizationSwitcher() {
+  return (
+    <Suspense fallback={<OrganizationSwitcherSkeleton />}>
+      <OrganizationSwitcherContent />
+    </Suspense>
+  )
+}
+
+function OrganizationSwitcherContent() {
   const { isMobile } = useSidebar()
   const queryClient = useQueryClient()
-  const navigate = useNavigate()
+  const [createDialogOpen, setCreateDialogOpen] = useState(false)
 
-  const { data: activeOrganization } = useQuery(fullOrganizationQueryOptions())
-  const { data: organizations } = useQuery(organizationsListQueryOptions())
+  const { data: activeOrganization } = useSuspenseQuery(
+    fullOrganizationQueryOptions()
+  )
+  const { data: organizations } = useSuspenseQuery(
+    organizationsListQueryOptions()
+  )
 
   const setActiveMutation = useMutation({
     mutationFn: async (organizationId: string) => {
@@ -52,7 +74,7 @@ export function OrganizationSwitcher() {
   })
 
   if (!activeOrganization) {
-    return null
+    return <OrganizationSwitcherSkeleton />
   }
 
   return (
@@ -104,7 +126,7 @@ export function OrganizationSwitcher() {
             <DropdownMenuGroup>
               <DropdownMenuItem
                 className="gap-2 p-2"
-                onClick={() => navigate({ to: "/create-organization" })}
+                onClick={() => setCreateDialogOpen(true)}
               >
                 <div className="flex size-6 items-center justify-center rounded-md border bg-transparent">
                   <PlusIcon className="size-4" />
@@ -117,6 +139,11 @@ export function OrganizationSwitcher() {
           </DropdownMenuContent>
         </DropdownMenu>
       </SidebarMenuItem>
+
+      <CreateOrganizationDialog
+        open={createDialogOpen}
+        onOpenChange={setCreateDialogOpen}
+      />
     </SidebarMenu>
   )
 }

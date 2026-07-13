@@ -79,7 +79,7 @@ That means validation and types are defined once and reused on both sides.
 Authentication is implemented with Better Auth.
 
 - The server mounts auth handlers at `/api/auth/*`.
-- The frontend uses the Better Auth React client from `apps/app/src/lib/auth-client.ts`.
+- The frontend uses the Better Auth React client from `apps/app/src/lib/auth/client.ts`.
 - Session-based auth works across frontend and API because requests include cookies.
 
 The current boilerplate is already wired for email/password auth.
@@ -126,6 +126,7 @@ For the API in `apps/api/.env`:
 FRONTEND_URL=http://localhost:5173
 API_URL=http://localhost:3000
 DATABASE_URL=postgres://USER:PASSWORD@localhost:5432/astack
+BETTER_AUTH_SECRET=
 ```
 
 For the SPA in `apps/app/.env`:

@@ -1,6 +1,11 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router"
+import {
+  createFileRoute,
+  Link,
+  useLocation,
+  useNavigate,
+} from "@tanstack/react-router"
 import { Controller, useForm } from "react-hook-form"
 import * as z from "zod"
 
@@ -19,8 +24,9 @@ import {
   FieldLabel,
 } from "@workspace/ui/components/field"
 import { Input } from "@workspace/ui/components/input"
+import { PasswordInput } from "@workspace/ui/components/password-input"
 import { toast } from "@workspace/ui/components/sonner"
-import { Spinner } from "@/components/spinner"
+import { Spinner } from "@workspace/ui/components/spinner"
 import { signUp } from "@/lib/auth/client"
 
 export const Route = createFileRoute("/(unauthorized)/signup/")({
@@ -29,6 +35,10 @@ export const Route = createFileRoute("/(unauthorized)/signup/")({
 
 function Page() {
   const navigate = useNavigate()
+  const { searchStr } = useLocation()
+  const redirect = new URLSearchParams(searchStr).get("redirect") ?? undefined
+  const email =
+    new URLSearchParams(redirect?.split("?")[1] ?? "").get("email") ?? ""
   const queryClient = useQueryClient()
 
   const signUpFormSchema = z
@@ -54,7 +64,7 @@ function Page() {
     resolver: zodResolver(signUpFormSchema),
     defaultValues: {
       name: "",
-      email: "",
+      email,
       password: "",
       confirmPassword: "",
     },
@@ -75,7 +85,13 @@ function Page() {
     onSuccess: async () => {
       await queryClient.refetchQueries({ queryKey: ["session"] })
       toast.success("Account created")
-      navigate({ to: "/create-organization" })
+
+      if (redirect) {
+        navigate({ href: redirect })
+        return
+      }
+
+      navigate({ to: "/" })
     },
     onError: (error) => {
       toast.error(error.message)
@@ -83,125 +99,130 @@ function Page() {
   })
 
   return (
-    <div className="flex h-screen w-full items-center justify-center p-6">
-      <Card className="w-full max-w-sm">
-        <CardHeader>
-          <CardTitle className="text-2xl">Sign up</CardTitle>
-          <CardDescription>
-            Enter your information below to sign up
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form
-            onSubmit={form.handleSubmit((values) =>
-              signUpMutation.mutate(values)
-            )}
-            noValidate
-          >
-            <FieldGroup>
-              <Controller
-                name="name"
-                control={form.control}
-                render={({ field, fieldState }) => (
-                  <Field data-invalid={fieldState.invalid}>
-                    <FieldLabel htmlFor={field.name}>Name</FieldLabel>
-                    <Input
-                      {...field}
-                      id={field.name}
-                      placeholder="John Doe"
-                      autoComplete="name"
-                      aria-invalid={fieldState.invalid}
-                      disabled={signUpMutation.isPending}
-                    />
-                    {fieldState.invalid && (
-                      <FieldError errors={[fieldState.error]} />
-                    )}
-                  </Field>
-                )}
-              />
+    <>
+      <title>Sign up</title>
+      <div className="flex h-screen w-full items-center justify-center p-6">
+        <Card className="w-full max-w-sm">
+          <CardHeader>
+            <CardTitle className="text-xl">Sign up</CardTitle>
+            <CardDescription>
+              Enter your information below to sign up
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form
+              onSubmit={form.handleSubmit((values) =>
+                signUpMutation.mutate(values)
+              )}
+              noValidate
+            >
+              <FieldGroup>
+                <Controller
+                  name="name"
+                  control={form.control}
+                  render={({ field, fieldState }) => (
+                    <Field data-invalid={fieldState.invalid}>
+                      <FieldLabel htmlFor={field.name}>Name</FieldLabel>
+                      <Input
+                        {...field}
+                        id={field.name}
+                        placeholder="John Doe"
+                        autoComplete="name"
+                        aria-invalid={fieldState.invalid}
+                        disabled={signUpMutation.isPending}
+                      />
+                      {fieldState.invalid && (
+                        <FieldError errors={[fieldState.error]} />
+                      )}
+                    </Field>
+                  )}
+                />
 
-              <Controller
-                name="email"
-                control={form.control}
-                render={({ field, fieldState }) => (
-                  <Field data-invalid={fieldState.invalid}>
-                    <FieldLabel htmlFor={field.name}>Email</FieldLabel>
-                    <Input
-                      {...field}
-                      id={field.name}
-                      type="email"
-                      placeholder="mail@example.com"
-                      autoComplete="email"
-                      aria-invalid={fieldState.invalid}
-                      disabled={signUpMutation.isPending}
-                    />
-                    {fieldState.invalid && (
-                      <FieldError errors={[fieldState.error]} />
-                    )}
-                  </Field>
-                )}
-              />
+                <Controller
+                  name="email"
+                  control={form.control}
+                  render={({ field, fieldState }) => (
+                    <Field data-invalid={fieldState.invalid}>
+                      <FieldLabel htmlFor={field.name}>Email</FieldLabel>
+                      <Input
+                        {...field}
+                        id={field.name}
+                        type="email"
+                        placeholder="name@example.com"
+                        autoComplete="email"
+                        aria-invalid={fieldState.invalid}
+                        disabled={signUpMutation.isPending || !!email}
+                      />
+                      {fieldState.invalid && (
+                        <FieldError errors={[fieldState.error]} />
+                      )}
+                    </Field>
+                  )}
+                />
 
-              <Controller
-                name="password"
-                control={form.control}
-                render={({ field, fieldState }) => (
-                  <Field data-invalid={fieldState.invalid}>
-                    <FieldLabel htmlFor={field.name}>Password</FieldLabel>
-                    <Input
-                      {...field}
-                      id={field.name}
-                      type="password"
-                      autoComplete="new-password"
-                      aria-invalid={fieldState.invalid}
-                      disabled={signUpMutation.isPending}
-                    />
-                    {fieldState.invalid && (
-                      <FieldError errors={[fieldState.error]} />
-                    )}
-                  </Field>
-                )}
-              />
+                <Controller
+                  name="password"
+                  control={form.control}
+                  render={({ field, fieldState }) => (
+                    <Field data-invalid={fieldState.invalid}>
+                      <FieldLabel htmlFor={field.name}>Password</FieldLabel>
+                      <PasswordInput
+                        {...field}
+                        id={field.name}
+                        autoComplete="new-password"
+                        aria-invalid={fieldState.invalid}
+                        disabled={signUpMutation.isPending}
+                      />
+                      {fieldState.invalid && (
+                        <FieldError errors={[fieldState.error]} />
+                      )}
+                    </Field>
+                  )}
+                />
 
-              <Controller
-                name="confirmPassword"
-                control={form.control}
-                render={({ field, fieldState }) => (
-                  <Field data-invalid={fieldState.invalid}>
-                    <FieldLabel htmlFor={field.name}>
-                      Confirm Password
-                    </FieldLabel>
-                    <Input
-                      {...field}
-                      id={field.name}
-                      type="password"
-                      autoComplete="new-password"
-                      aria-invalid={fieldState.invalid}
-                      disabled={signUpMutation.isPending}
-                    />
-                    {fieldState.invalid && (
-                      <FieldError errors={[fieldState.error]} />
-                    )}
-                  </Field>
-                )}
-              />
+                <Controller
+                  name="confirmPassword"
+                  control={form.control}
+                  render={({ field, fieldState }) => (
+                    <Field data-invalid={fieldState.invalid}>
+                      <FieldLabel htmlFor={field.name}>
+                        Confirm Password
+                      </FieldLabel>
+                      <PasswordInput
+                        {...field}
+                        id={field.name}
+                        autoComplete="new-password"
+                        aria-invalid={fieldState.invalid}
+                        disabled={signUpMutation.isPending}
+                      />
+                      {fieldState.invalid && (
+                        <FieldError errors={[fieldState.error]} />
+                      )}
+                    </Field>
+                  )}
+                />
 
-              <Button type="submit" disabled={signUpMutation.isPending}>
-                {signUpMutation.isPending ? <Spinner /> : "Sign up"}
-              </Button>
+                <Button type="submit" disabled={signUpMutation.isPending}>
+                  {signUpMutation.isPending ? <Spinner /> : "Sign up"}
+                </Button>
 
-              <div className="text-center text-sm">
-                <span className="text-muted-foreground">
-                  Already have an account?{" "}
-                </span>
-                <Link to="/signin" className="underline underline-offset-3">
-                  Sign in
-                </Link>
-              </div>
-            </FieldGroup>
-          </form>
-        </CardContent>
-      </Card>
-    </div>
+                <div className="text-center text-sm">
+                  <span className="text-muted-foreground">
+                    Already have an account?{" "}
+                  </span>
+                  <Link
+                    to="/signin"
+                    search={{ redirect }}
+                    className="underline"
+                  >
+                    Sign in
+                  </Link>
+                </div>
+              </FieldGroup>
+            </form>
+          </CardContent>
+        </Card>
+      </div>
+    </>
   )
 }

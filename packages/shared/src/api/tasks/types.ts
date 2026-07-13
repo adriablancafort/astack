@@ -2,35 +2,26 @@ import type { z } from "zod"
 
 import {
   createTaskRequestSchema,
-  taskIdParamRequestSchema,
+  taskIdParamsSchema,
   updateTaskRequestSchema,
 } from "./schemas"
 
-export const taskStatusValues = ["todo", "in_progress", "done"] as const
-
-export type TaskStatus = (typeof taskStatusValues)[number]
+export type TaskStatus = "todo" | "in_progress" | "done"
 
 export type Task = {
   id: string
   title: string
   description: string | null
   status: TaskStatus
-  createdAt: string
-  updatedAt: string
+  organizationId: string
+  createdAt: Date
+  updatedAt: Date
 }
 
-export type ListTasksResponse = {
-  tasks: Task[]
-}
+export type TaskListResponse = Task[]
 
-export type TaskResponse = {
-  task: Task
-}
-
-export type DeleteTaskResponse = {
-  success: true
-}
+export type TaskResponse = Task
 
 export type CreateTaskRequest = z.infer<typeof createTaskRequestSchema>
 export type UpdateTaskRequest = z.infer<typeof updateTaskRequestSchema>
-export type TaskIdParamRequest = z.infer<typeof taskIdParamRequestSchema>
+export type TaskIdParams = z.infer<typeof taskIdParamsSchema>

@@ -17,12 +17,18 @@ import { Route as unauthorizedSigninPageRouteImport } from './routes/(unauthoriz
 import { Route as unauthorizedSetNewPasswordPageRouteImport } from './routes/(unauthorized)/set-new-password/page'
 import { Route as unauthorizedResetPasswordPageRouteImport } from './routes/(unauthorized)/reset-password/page'
 import { Route as authorizedSelectOrganizationPageRouteImport } from './routes/(authorized)/select-organization/page'
+import { Route as authorizedJoinOrganizationPageRouteImport } from './routes/(authorized)/join-organization/page'
 import { Route as authorizedCreateOrganizationPageRouteImport } from './routes/(authorized)/create-organization/page'
 import { Route as authorizedorganizationsidebarLayoutRouteImport } from './routes/(authorized)/(organization)/(sidebar)/layout'
+import { Route as authorizedorganizationInviteMembersPageRouteImport } from './routes/(authorized)/(organization)/invite-members/page'
 import { Route as authorizedorganizationsidebarPageRouteImport } from './routes/(authorized)/(organization)/(sidebar)/page'
+import { Route as authorizedorganizationsidebarSettingsLayoutRouteImport } from './routes/(authorized)/(organization)/(sidebar)/settings/layout'
 import { Route as authorizedorganizationsidebarTasksPageRouteImport } from './routes/(authorized)/(organization)/(sidebar)/tasks/page'
+import { Route as authorizedorganizationsidebarSettingsPageRouteImport } from './routes/(authorized)/(organization)/(sidebar)/settings/page'
 import { Route as authorizedorganizationsidebarSplatPageRouteImport } from './routes/(authorized)/(organization)/(sidebar)/$/page'
+import { Route as authorizedorganizationsidebarSettingsRolesPageRouteImport } from './routes/(authorized)/(organization)/(sidebar)/settings/roles/page'
 import { Route as authorizedorganizationsidebarSettingsOrganizationPageRouteImport } from './routes/(authorized)/(organization)/(sidebar)/settings/organization/page'
+import { Route as authorizedorganizationsidebarSettingsMembersPageRouteImport } from './routes/(authorized)/(organization)/(sidebar)/settings/members/page'
 import { Route as authorizedorganizationsidebarSettingsAccountPageRouteImport } from './routes/(authorized)/(organization)/(sidebar)/settings/account/page'
 
 const unauthorizedLayoutRoute = unauthorizedLayoutRouteImport.update({
@@ -66,6 +72,12 @@ const authorizedSelectOrganizationPageRoute =
     path: '/select-organization/',
     getParentRoute: () => authorizedLayoutRoute,
   } as any)
+const authorizedJoinOrganizationPageRoute =
+  authorizedJoinOrganizationPageRouteImport.update({
+    id: '/join-organization/',
+    path: '/join-organization/',
+    getParentRoute: () => authorizedLayoutRoute,
+  } as any)
 const authorizedCreateOrganizationPageRoute =
   authorizedCreateOrganizationPageRouteImport.update({
     id: '/create-organization/',
@@ -77,10 +89,22 @@ const authorizedorganizationsidebarLayoutRoute =
     id: '/(sidebar)',
     getParentRoute: () => authorizedorganizationLayoutRoute,
   } as any)
+const authorizedorganizationInviteMembersPageRoute =
+  authorizedorganizationInviteMembersPageRouteImport.update({
+    id: '/invite-members/',
+    path: '/invite-members/',
+    getParentRoute: () => authorizedorganizationLayoutRoute,
+  } as any)
 const authorizedorganizationsidebarPageRoute =
   authorizedorganizationsidebarPageRouteImport.update({
     id: '/',
     path: '/',
+    getParentRoute: () => authorizedorganizationsidebarLayoutRoute,
+  } as any)
+const authorizedorganizationsidebarSettingsLayoutRoute =
+  authorizedorganizationsidebarSettingsLayoutRouteImport.update({
+    id: '/settings',
+    path: '/settings',
     getParentRoute: () => authorizedorganizationsidebarLayoutRoute,
   } as any)
 const authorizedorganizationsidebarTasksPageRoute =
@@ -89,50 +113,79 @@ const authorizedorganizationsidebarTasksPageRoute =
     path: '/tasks/',
     getParentRoute: () => authorizedorganizationsidebarLayoutRoute,
   } as any)
+const authorizedorganizationsidebarSettingsPageRoute =
+  authorizedorganizationsidebarSettingsPageRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => authorizedorganizationsidebarSettingsLayoutRoute,
+  } as any)
 const authorizedorganizationsidebarSplatPageRoute =
   authorizedorganizationsidebarSplatPageRouteImport.update({
     id: '/$/',
     path: '/$/',
     getParentRoute: () => authorizedorganizationsidebarLayoutRoute,
   } as any)
+const authorizedorganizationsidebarSettingsRolesPageRoute =
+  authorizedorganizationsidebarSettingsRolesPageRouteImport.update({
+    id: '/roles/',
+    path: '/roles/',
+    getParentRoute: () => authorizedorganizationsidebarSettingsLayoutRoute,
+  } as any)
 const authorizedorganizationsidebarSettingsOrganizationPageRoute =
   authorizedorganizationsidebarSettingsOrganizationPageRouteImport.update({
-    id: '/settings/organization/',
-    path: '/settings/organization/',
-    getParentRoute: () => authorizedorganizationsidebarLayoutRoute,
+    id: '/organization/',
+    path: '/organization/',
+    getParentRoute: () => authorizedorganizationsidebarSettingsLayoutRoute,
+  } as any)
+const authorizedorganizationsidebarSettingsMembersPageRoute =
+  authorizedorganizationsidebarSettingsMembersPageRouteImport.update({
+    id: '/members/',
+    path: '/members/',
+    getParentRoute: () => authorizedorganizationsidebarSettingsLayoutRoute,
   } as any)
 const authorizedorganizationsidebarSettingsAccountPageRoute =
   authorizedorganizationsidebarSettingsAccountPageRouteImport.update({
-    id: '/settings/account/',
-    path: '/settings/account/',
-    getParentRoute: () => authorizedorganizationsidebarLayoutRoute,
+    id: '/account/',
+    path: '/account/',
+    getParentRoute: () => authorizedorganizationsidebarSettingsLayoutRoute,
   } as any)
 
 export interface FileRoutesByFullPath {
   '/create-organization/': typeof authorizedCreateOrganizationPageRoute
+  '/join-organization/': typeof authorizedJoinOrganizationPageRoute
   '/select-organization/': typeof authorizedSelectOrganizationPageRoute
   '/reset-password/': typeof unauthorizedResetPasswordPageRoute
   '/set-new-password/': typeof unauthorizedSetNewPasswordPageRoute
   '/signin/': typeof unauthorizedSigninPageRoute
   '/signup/': typeof unauthorizedSignupPageRoute
+  '/settings': typeof authorizedorganizationsidebarSettingsLayoutRouteWithChildren
   '/': typeof authorizedorganizationsidebarPageRoute
+  '/invite-members/': typeof authorizedorganizationInviteMembersPageRoute
   '/$/': typeof authorizedorganizationsidebarSplatPageRoute
+  '/settings/': typeof authorizedorganizationsidebarSettingsPageRoute
   '/tasks/': typeof authorizedorganizationsidebarTasksPageRoute
   '/settings/account/': typeof authorizedorganizationsidebarSettingsAccountPageRoute
+  '/settings/members/': typeof authorizedorganizationsidebarSettingsMembersPageRoute
   '/settings/organization/': typeof authorizedorganizationsidebarSettingsOrganizationPageRoute
+  '/settings/roles/': typeof authorizedorganizationsidebarSettingsRolesPageRoute
 }
 export interface FileRoutesByTo {
   '/create-organization': typeof authorizedCreateOrganizationPageRoute
+  '/join-organization': typeof authorizedJoinOrganizationPageRoute
   '/select-organization': typeof authorizedSelectOrganizationPageRoute
   '/reset-password': typeof unauthorizedResetPasswordPageRoute
   '/set-new-password': typeof unauthorizedSetNewPasswordPageRoute
   '/signin': typeof unauthorizedSigninPageRoute
   '/signup': typeof unauthorizedSignupPageRoute
   '/': typeof authorizedorganizationsidebarPageRoute
+  '/invite-members': typeof authorizedorganizationInviteMembersPageRoute
   '/$': typeof authorizedorganizationsidebarSplatPageRoute
+  '/settings': typeof authorizedorganizationsidebarSettingsPageRoute
   '/tasks': typeof authorizedorganizationsidebarTasksPageRoute
   '/settings/account': typeof authorizedorganizationsidebarSettingsAccountPageRoute
+  '/settings/members': typeof authorizedorganizationsidebarSettingsMembersPageRoute
   '/settings/organization': typeof authorizedorganizationsidebarSettingsOrganizationPageRoute
+  '/settings/roles': typeof authorizedorganizationsidebarSettingsRolesPageRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -141,44 +194,61 @@ export interface FileRoutesById {
   '/(authorized)/(organization)': typeof authorizedorganizationLayoutRouteWithChildren
   '/(authorized)/(organization)/(sidebar)': typeof authorizedorganizationsidebarLayoutRouteWithChildren
   '/(authorized)/create-organization/': typeof authorizedCreateOrganizationPageRoute
+  '/(authorized)/join-organization/': typeof authorizedJoinOrganizationPageRoute
   '/(authorized)/select-organization/': typeof authorizedSelectOrganizationPageRoute
   '/(unauthorized)/reset-password/': typeof unauthorizedResetPasswordPageRoute
   '/(unauthorized)/set-new-password/': typeof unauthorizedSetNewPasswordPageRoute
   '/(unauthorized)/signin/': typeof unauthorizedSigninPageRoute
   '/(unauthorized)/signup/': typeof unauthorizedSignupPageRoute
+  '/(authorized)/(organization)/(sidebar)/settings': typeof authorizedorganizationsidebarSettingsLayoutRouteWithChildren
   '/(authorized)/(organization)/(sidebar)/': typeof authorizedorganizationsidebarPageRoute
+  '/(authorized)/(organization)/invite-members/': typeof authorizedorganizationInviteMembersPageRoute
   '/(authorized)/(organization)/(sidebar)/$/': typeof authorizedorganizationsidebarSplatPageRoute
+  '/(authorized)/(organization)/(sidebar)/settings/': typeof authorizedorganizationsidebarSettingsPageRoute
   '/(authorized)/(organization)/(sidebar)/tasks/': typeof authorizedorganizationsidebarTasksPageRoute
   '/(authorized)/(organization)/(sidebar)/settings/account/': typeof authorizedorganizationsidebarSettingsAccountPageRoute
+  '/(authorized)/(organization)/(sidebar)/settings/members/': typeof authorizedorganizationsidebarSettingsMembersPageRoute
   '/(authorized)/(organization)/(sidebar)/settings/organization/': typeof authorizedorganizationsidebarSettingsOrganizationPageRoute
+  '/(authorized)/(organization)/(sidebar)/settings/roles/': typeof authorizedorganizationsidebarSettingsRolesPageRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/create-organization/'
+    | '/join-organization/'
     | '/select-organization/'
     | '/reset-password/'
     | '/set-new-password/'
     | '/signin/'
     | '/signup/'
+    | '/settings'
     | '/'
+    | '/invite-members/'
     | '/$/'
+    | '/settings/'
     | '/tasks/'
     | '/settings/account/'
+    | '/settings/members/'
     | '/settings/organization/'
+    | '/settings/roles/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/create-organization'
+    | '/join-organization'
     | '/select-organization'
     | '/reset-password'
     | '/set-new-password'
     | '/signin'
     | '/signup'
     | '/'
+    | '/invite-members'
     | '/$'
+    | '/settings'
     | '/tasks'
     | '/settings/account'
+    | '/settings/members'
     | '/settings/organization'
+    | '/settings/roles'
   id:
     | '__root__'
     | '/(authorized)'
@@ -186,16 +256,22 @@ export interface FileRouteTypes {
     | '/(authorized)/(organization)'
     | '/(authorized)/(organization)/(sidebar)'
     | '/(authorized)/create-organization/'
+    | '/(authorized)/join-organization/'
     | '/(authorized)/select-organization/'
     | '/(unauthorized)/reset-password/'
     | '/(unauthorized)/set-new-password/'
     | '/(unauthorized)/signin/'
     | '/(unauthorized)/signup/'
+    | '/(authorized)/(organization)/(sidebar)/settings'
     | '/(authorized)/(organization)/(sidebar)/'
+    | '/(authorized)/(organization)/invite-members/'
     | '/(authorized)/(organization)/(sidebar)/$/'
+    | '/(authorized)/(organization)/(sidebar)/settings/'
     | '/(authorized)/(organization)/(sidebar)/tasks/'
     | '/(authorized)/(organization)/(sidebar)/settings/account/'
+    | '/(authorized)/(organization)/(sidebar)/settings/members/'
     | '/(authorized)/(organization)/(sidebar)/settings/organization/'
+    | '/(authorized)/(organization)/(sidebar)/settings/roles/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -261,6 +337,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof authorizedSelectOrganizationPageRouteImport
       parentRoute: typeof authorizedLayoutRoute
     }
+    '/(authorized)/join-organization/': {
+      id: '/(authorized)/join-organization/'
+      path: '/join-organization'
+      fullPath: '/join-organization/'
+      preLoaderRoute: typeof authorizedJoinOrganizationPageRouteImport
+      parentRoute: typeof authorizedLayoutRoute
+    }
     '/(authorized)/create-organization/': {
       id: '/(authorized)/create-organization/'
       path: '/create-organization'
@@ -275,11 +358,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof authorizedorganizationsidebarLayoutRouteImport
       parentRoute: typeof authorizedorganizationLayoutRoute
     }
+    '/(authorized)/(organization)/invite-members/': {
+      id: '/(authorized)/(organization)/invite-members/'
+      path: '/invite-members'
+      fullPath: '/invite-members/'
+      preLoaderRoute: typeof authorizedorganizationInviteMembersPageRouteImport
+      parentRoute: typeof authorizedorganizationLayoutRoute
+    }
     '/(authorized)/(organization)/(sidebar)/': {
       id: '/(authorized)/(organization)/(sidebar)/'
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof authorizedorganizationsidebarPageRouteImport
+      parentRoute: typeof authorizedorganizationsidebarLayoutRoute
+    }
+    '/(authorized)/(organization)/(sidebar)/settings': {
+      id: '/(authorized)/(organization)/(sidebar)/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof authorizedorganizationsidebarSettingsLayoutRouteImport
       parentRoute: typeof authorizedorganizationsidebarLayoutRoute
     }
     '/(authorized)/(organization)/(sidebar)/tasks/': {
@@ -289,6 +386,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof authorizedorganizationsidebarTasksPageRouteImport
       parentRoute: typeof authorizedorganizationsidebarLayoutRoute
     }
+    '/(authorized)/(organization)/(sidebar)/settings/': {
+      id: '/(authorized)/(organization)/(sidebar)/settings/'
+      path: '/'
+      fullPath: '/settings/'
+      preLoaderRoute: typeof authorizedorganizationsidebarSettingsPageRouteImport
+      parentRoute: typeof authorizedorganizationsidebarSettingsLayoutRoute
+    }
     '/(authorized)/(organization)/(sidebar)/$/': {
       id: '/(authorized)/(organization)/(sidebar)/$/'
       path: '/$'
@@ -296,43 +400,81 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof authorizedorganizationsidebarSplatPageRouteImport
       parentRoute: typeof authorizedorganizationsidebarLayoutRoute
     }
+    '/(authorized)/(organization)/(sidebar)/settings/roles/': {
+      id: '/(authorized)/(organization)/(sidebar)/settings/roles/'
+      path: '/roles'
+      fullPath: '/settings/roles/'
+      preLoaderRoute: typeof authorizedorganizationsidebarSettingsRolesPageRouteImport
+      parentRoute: typeof authorizedorganizationsidebarSettingsLayoutRoute
+    }
     '/(authorized)/(organization)/(sidebar)/settings/organization/': {
       id: '/(authorized)/(organization)/(sidebar)/settings/organization/'
-      path: '/settings/organization'
+      path: '/organization'
       fullPath: '/settings/organization/'
       preLoaderRoute: typeof authorizedorganizationsidebarSettingsOrganizationPageRouteImport
-      parentRoute: typeof authorizedorganizationsidebarLayoutRoute
+      parentRoute: typeof authorizedorganizationsidebarSettingsLayoutRoute
+    }
+    '/(authorized)/(organization)/(sidebar)/settings/members/': {
+      id: '/(authorized)/(organization)/(sidebar)/settings/members/'
+      path: '/members'
+      fullPath: '/settings/members/'
+      preLoaderRoute: typeof authorizedorganizationsidebarSettingsMembersPageRouteImport
+      parentRoute: typeof authorizedorganizationsidebarSettingsLayoutRoute
     }
     '/(authorized)/(organization)/(sidebar)/settings/account/': {
       id: '/(authorized)/(organization)/(sidebar)/settings/account/'
-      path: '/settings/account'
+      path: '/account'
       fullPath: '/settings/account/'
       preLoaderRoute: typeof authorizedorganizationsidebarSettingsAccountPageRouteImport
-      parentRoute: typeof authorizedorganizationsidebarLayoutRoute
+      parentRoute: typeof authorizedorganizationsidebarSettingsLayoutRoute
     }
   }
 }
 
+interface authorizedorganizationsidebarSettingsLayoutRouteChildren {
+  authorizedorganizationsidebarSettingsPageRoute: typeof authorizedorganizationsidebarSettingsPageRoute
+  authorizedorganizationsidebarSettingsAccountPageRoute: typeof authorizedorganizationsidebarSettingsAccountPageRoute
+  authorizedorganizationsidebarSettingsMembersPageRoute: typeof authorizedorganizationsidebarSettingsMembersPageRoute
+  authorizedorganizationsidebarSettingsOrganizationPageRoute: typeof authorizedorganizationsidebarSettingsOrganizationPageRoute
+  authorizedorganizationsidebarSettingsRolesPageRoute: typeof authorizedorganizationsidebarSettingsRolesPageRoute
+}
+
+const authorizedorganizationsidebarSettingsLayoutRouteChildren: authorizedorganizationsidebarSettingsLayoutRouteChildren =
+  {
+    authorizedorganizationsidebarSettingsPageRoute:
+      authorizedorganizationsidebarSettingsPageRoute,
+    authorizedorganizationsidebarSettingsAccountPageRoute:
+      authorizedorganizationsidebarSettingsAccountPageRoute,
+    authorizedorganizationsidebarSettingsMembersPageRoute:
+      authorizedorganizationsidebarSettingsMembersPageRoute,
+    authorizedorganizationsidebarSettingsOrganizationPageRoute:
+      authorizedorganizationsidebarSettingsOrganizationPageRoute,
+    authorizedorganizationsidebarSettingsRolesPageRoute:
+      authorizedorganizationsidebarSettingsRolesPageRoute,
+  }
+
+const authorizedorganizationsidebarSettingsLayoutRouteWithChildren =
+  authorizedorganizationsidebarSettingsLayoutRoute._addFileChildren(
+    authorizedorganizationsidebarSettingsLayoutRouteChildren,
+  )
+
 interface authorizedorganizationsidebarLayoutRouteChildren {
+  authorizedorganizationsidebarSettingsLayoutRoute: typeof authorizedorganizationsidebarSettingsLayoutRouteWithChildren
   authorizedorganizationsidebarPageRoute: typeof authorizedorganizationsidebarPageRoute
   authorizedorganizationsidebarSplatPageRoute: typeof authorizedorganizationsidebarSplatPageRoute
   authorizedorganizationsidebarTasksPageRoute: typeof authorizedorganizationsidebarTasksPageRoute
-  authorizedorganizationsidebarSettingsAccountPageRoute: typeof authorizedorganizationsidebarSettingsAccountPageRoute
-  authorizedorganizationsidebarSettingsOrganizationPageRoute: typeof authorizedorganizationsidebarSettingsOrganizationPageRoute
 }
 
 const authorizedorganizationsidebarLayoutRouteChildren: authorizedorganizationsidebarLayoutRouteChildren =
   {
+    authorizedorganizationsidebarSettingsLayoutRoute:
+      authorizedorganizationsidebarSettingsLayoutRouteWithChildren,
     authorizedorganizationsidebarPageRoute:
       authorizedorganizationsidebarPageRoute,
     authorizedorganizationsidebarSplatPageRoute:
       authorizedorganizationsidebarSplatPageRoute,
     authorizedorganizationsidebarTasksPageRoute:
       authorizedorganizationsidebarTasksPageRoute,
-    authorizedorganizationsidebarSettingsAccountPageRoute:
-      authorizedorganizationsidebarSettingsAccountPageRoute,
-    authorizedorganizationsidebarSettingsOrganizationPageRoute:
-      authorizedorganizationsidebarSettingsOrganizationPageRoute,
   }
 
 const authorizedorganizationsidebarLayoutRouteWithChildren =
@@ -342,12 +484,15 @@ const authorizedorganizationsidebarLayoutRouteWithChildren =
 
 interface authorizedorganizationLayoutRouteChildren {
   authorizedorganizationsidebarLayoutRoute: typeof authorizedorganizationsidebarLayoutRouteWithChildren
+  authorizedorganizationInviteMembersPageRoute: typeof authorizedorganizationInviteMembersPageRoute
 }
 
 const authorizedorganizationLayoutRouteChildren: authorizedorganizationLayoutRouteChildren =
   {
     authorizedorganizationsidebarLayoutRoute:
       authorizedorganizationsidebarLayoutRouteWithChildren,
+    authorizedorganizationInviteMembersPageRoute:
+      authorizedorganizationInviteMembersPageRoute,
   }
 
 const authorizedorganizationLayoutRouteWithChildren =
@@ -358,6 +503,7 @@ const authorizedorganizationLayoutRouteWithChildren =
 interface authorizedLayoutRouteChildren {
   authorizedorganizationLayoutRoute: typeof authorizedorganizationLayoutRouteWithChildren
   authorizedCreateOrganizationPageRoute: typeof authorizedCreateOrganizationPageRoute
+  authorizedJoinOrganizationPageRoute: typeof authorizedJoinOrganizationPageRoute
   authorizedSelectOrganizationPageRoute: typeof authorizedSelectOrganizationPageRoute
 }
 
@@ -365,6 +511,7 @@ const authorizedLayoutRouteChildren: authorizedLayoutRouteChildren = {
   authorizedorganizationLayoutRoute:
     authorizedorganizationLayoutRouteWithChildren,
   authorizedCreateOrganizationPageRoute: authorizedCreateOrganizationPageRoute,
+  authorizedJoinOrganizationPageRoute: authorizedJoinOrganizationPageRoute,
   authorizedSelectOrganizationPageRoute: authorizedSelectOrganizationPageRoute,
 }
 

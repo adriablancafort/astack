@@ -20,7 +20,7 @@ import {
 } from "@workspace/ui/components/field"
 import { Input } from "@workspace/ui/components/input"
 import { toast } from "@workspace/ui/components/sonner"
-import { Spinner } from "@/components/spinner"
+import { Spinner } from "@workspace/ui/components/spinner"
 import { requestPasswordReset } from "@/lib/auth/client"
 import { env } from "@/lib/env"
 
@@ -42,20 +42,19 @@ function Page() {
     },
   })
 
-  const recoverPasswordMutation = useMutation({
+  const resetPasswordMutation = useMutation({
     mutationFn: async (values: RecoverPasswordFormValues) => {
       const result = await requestPasswordReset({
         email: values.email,
         redirectTo: `${env.FRONTEND_URL}/set-new-password`,
       })
-
       if (result.error) {
         throw new Error(result.error.message)
       }
     },
     onSuccess: () => {
       toast.success(
-        "If an account exists for that email, a reset link has been sent"
+        "If an account exists for this email, a reset link has been sent"
       )
       form.reset()
     },
@@ -65,67 +64,70 @@ function Page() {
   })
 
   return (
-    <div className="flex h-screen w-full items-center justify-center p-6">
-      <Card className="w-full max-w-sm">
-        <CardHeader>
-          <CardTitle className="text-2xl">Reset password</CardTitle>
-          <CardDescription>
-            Enter your email below to receive a password reset link
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form
-            onSubmit={form.handleSubmit((values) =>
-              recoverPasswordMutation.mutate(values)
-            )}
-            noValidate
-          >
-            <FieldGroup>
-              <Controller
-                name="email"
-                control={form.control}
-                render={({ field, fieldState }) => (
-                  <Field data-invalid={fieldState.invalid}>
-                    <FieldLabel htmlFor={field.name}>Email</FieldLabel>
-                    <Input
-                      {...field}
-                      id={field.name}
-                      type="email"
-                      placeholder="mail@example.com"
-                      autoComplete="email"
-                      aria-invalid={fieldState.invalid}
-                      disabled={recoverPasswordMutation.isPending}
-                    />
-                    {fieldState.invalid && (
-                      <FieldError errors={[fieldState.error]} />
-                    )}
-                  </Field>
-                )}
-              />
+    <>
+      <title>Reset password</title>
+      <div className="flex h-screen w-full items-center justify-center p-6">
+        <Card className="w-full max-w-sm">
+          <CardHeader>
+            <CardTitle className="text-xl">Reset password</CardTitle>
+            <CardDescription>
+              Enter your email below to receive a password reset link
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form
+              onSubmit={form.handleSubmit((values) =>
+                resetPasswordMutation.mutate(values)
+              )}
+              noValidate
+            >
+              <FieldGroup>
+                <Controller
+                  name="email"
+                  control={form.control}
+                  render={({ field, fieldState }) => (
+                    <Field data-invalid={fieldState.invalid}>
+                      <FieldLabel htmlFor={field.name}>Email</FieldLabel>
+                      <Input
+                        {...field}
+                        id={field.name}
+                        type="email"
+                        placeholder="name@example.com"
+                        autoComplete="email"
+                        aria-invalid={fieldState.invalid}
+                        disabled={resetPasswordMutation.isPending}
+                      />
+                      {fieldState.invalid && (
+                        <FieldError errors={[fieldState.error]} />
+                      )}
+                    </Field>
+                  )}
+                />
 
-              <Button
-                type="submit"
-                disabled={recoverPasswordMutation.isPending}
-              >
-                {recoverPasswordMutation.isPending ? (
-                  <Spinner />
-                ) : (
-                  "Send reset link"
-                )}
-              </Button>
+                <Button
+                  type="submit"
+                  disabled={resetPasswordMutation.isPending}
+                >
+                  {resetPasswordMutation.isPending ? (
+                    <Spinner className="mx-12" />
+                  ) : (
+                    "Send reset link"
+                  )}
+                </Button>
 
-              <div className="text-center text-sm">
-                <span className="text-muted-foreground">
-                  Already remember it?{" "}
-                </span>
-                <Link to="/signin" className="underline underline-offset-3">
-                  Sign in
-                </Link>
-              </div>
-            </FieldGroup>
-          </form>
-        </CardContent>
-      </Card>
-    </div>
+                <div className="text-center text-sm">
+                  <span className="text-muted-foreground">
+                    Already remember it?{" "}
+                  </span>
+                  <Link to="/signin" className="underline">
+                    Sign in
+                  </Link>
+                </div>
+              </FieldGroup>
+            </form>
+          </CardContent>
+        </Card>
+      </div>
+    </>
   )
 }

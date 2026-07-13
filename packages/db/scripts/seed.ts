@@ -7,10 +7,11 @@ import {
   member,
   organization,
   session,
-  task,
   user,
   verification,
-} from "@workspace/db/schema"
+} from "@workspace/db/schema/auth"
+import { task } from "@workspace/db/schema/tasks"
+import type { TaskStatus } from "@workspace/shared/api/tasks/types"
 
 const DEMO_USER = {
   id: "demo-user",
@@ -18,15 +19,19 @@ const DEMO_USER = {
   email: "demo@example.com",
   image: "",
   emailVerified: true,
-} as const
+}
 
 const DEMO_ORGANIZATION = {
   id: "demo-org",
   name: "Demo Workspace",
   slug: "demo-workspace",
-} as const
+}
 
-const DEMO_TASKS = [
+const DEMO_TASKS: {
+  title: string
+  description: string
+  status: TaskStatus
+}[] = [
   {
     title: "Set up project board",
     description: "Create columns for backlog, in progress, and done.",
@@ -47,7 +52,7 @@ const DEMO_TASKS = [
     description: "Allow filtering tasks by status and keyword.",
     status: "todo",
   },
-] as const
+]
 
 async function seed() {
   console.log("Seeding database...")
