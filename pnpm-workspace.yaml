@@ -2,6 +2,9 @@ packages:
   - "apps/*"
   - "packages/*"
 
+allowBuilds:
+  esbuild: true
+
 catalog:
   '@biomejs/biome': 2.5.2
   '@tailwindcss/vite': 4.3.2
