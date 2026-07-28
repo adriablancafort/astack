@@ -29,6 +29,13 @@
       "when": 1777133849868,
       "tag": "0003_bored_freak",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1785227453956,
+      "tag": "0004_last_login_method",
+      "breakpoints": true
     }
   ]
 }
