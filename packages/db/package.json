@@ -11,7 +11,7 @@
     "up": "drizzle-kit up",
     "studio": "drizzle-kit studio",
     "seed": "tsx scripts/seed.ts",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc -b",
     "lint": "biome lint .",
     "format": "biome check --write --linter-enabled=false ."
   },
@@ -28,6 +28,7 @@
   "devDependencies": {
     "@types/node": "catalog:",
     "@types/pg": "^8.20.0",
+    "@workspace/tsconfig": "workspace:*",
     "drizzle-kit": "^0.31.10",
     "tsx": "catalog:",
     "typescript": "catalog:"

@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc -b",
     "lint": "biome lint .",
     "format": "biome check --write --linter-enabled=false ."
   },
@@ -32,6 +32,7 @@
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
     "@vitejs/plugin-react": "^6.0.3",
+    "@workspace/tsconfig": "workspace:*",
     "typescript": "catalog:",
     "vite": "catalog:"
   }

@@ -1,12 +1,6 @@
 {
+  "extends": "@workspace/tsconfig/base.json",
   "compilerOptions": {
-    "target": "ES2022",
-    "module": "ESNext",
-    "moduleResolution": "bundler",
-    "types": [],
-    "strict": true,
-    "skipLibCheck": true,
-    "verbatimModuleSyntax": true,
     "paths": {
       "@workspace/shared/*": ["./src/*"]
     }
