@@ -4,7 +4,7 @@ import {
   organizationClient,
 } from "better-auth/client/plugins"
 
-import { ac, admin, member, owner } from "@workspace/shared/auth/permissions"
+import { ac, admin, member, owner } from "@workspace/shared/auth/roles"
 import { env } from "@/lib/env"
 
 export const authClient = createAuthClient({
