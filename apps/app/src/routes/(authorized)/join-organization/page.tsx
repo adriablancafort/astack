@@ -20,8 +20,8 @@ export const Route = createFileRoute("/(authorized)/join-organization/")({
       throw redirect({ to: "/" })
     }
 
-    await context.queryClient.refetchQueries()
     toast.success("Joined organization successfully")
+    await context.queryClient.refetchQueries()
     throw redirect({ to: "/" })
   },
 })

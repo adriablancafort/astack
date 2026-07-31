@@ -83,8 +83,8 @@ function Page() {
       }
     },
     onSuccess: async () => {
-      await queryClient.refetchQueries({ queryKey: ["session"] })
       toast.success("Account created")
+      await queryClient.refetchQueries({ queryKey: ["session"] })
 
       if (redirect) {
         navigate({ href: redirect })
