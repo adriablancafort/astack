@@ -1,8 +1,16 @@
 {
-  "extends": "@workspace/tsconfig/base.json",
   "compilerOptions": {
+    "target": "ES2023",
     "lib": ["ES2023", "DOM", "DOM.Iterable"],
+    "skipLibCheck": true,
+    "moduleDetection": "force",
+    "verbatimModuleSyntax": true,
+    "erasableSyntaxOnly": true,
+    "noEmit": true,
     "jsx": "react-jsx",
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
     "paths": {
       "@workspace/ui/*": ["./src/*"]
     }

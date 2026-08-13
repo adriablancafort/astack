@@ -32,7 +32,6 @@
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
     "@vitejs/plugin-react": "^6.0.5",
-    "@workspace/tsconfig": "workspace:*",
     "typescript": "catalog:",
     "vite": "catalog:"
   }

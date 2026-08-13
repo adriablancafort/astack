@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "typecheck": "tsc -b",
+    "typecheck": "tsc --noEmit",
     "lint": "biome lint .",
     "format": "biome check --write --linter-enabled=false ."
   },
@@ -15,7 +15,6 @@
     "zod": "catalog:"
   },
   "devDependencies": {
-    "@workspace/tsconfig": "workspace:*",
     "typescript": "catalog:"
   }
 }

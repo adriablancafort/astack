@@ -1,7 +1,12 @@
 {
-  "extends": "@workspace/tsconfig/base.json",
   "compilerOptions": {
+    "target": "ES2023",
     "types": ["node"],
+    "skipLibCheck": true,
+    "moduleDetection": "force",
+    "verbatimModuleSyntax": true,
+    "erasableSyntaxOnly": true,
+    "noEmit": true,
     "paths": {
       "@workspace/db/*": ["./src/*"]
     }

@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "ui": "shadcn",
-    "typecheck": "tsc -b",
+    "typecheck": "tsc --noEmit",
     "lint": "biome lint .",
     "format": "biome check --write --linter-enabled=false ."
   },
@@ -33,7 +33,6 @@
     "@types/node": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
-    "@workspace/tsconfig": "workspace:*",
     "tailwindcss": "^4.3.3",
     "typescript": "catalog:"
   }

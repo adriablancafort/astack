@@ -5,7 +5,7 @@
     "dev": "tsx watch src/index.ts",
     "build": "rm -rf dist && rolldown -c",
     "start": "node dist/apps/api/src/index.js",
-    "typecheck": "tsc -b",
+    "typecheck": "tsc --noEmit",
     "lint": "biome lint .",
     "format": "biome check --write --linter-enabled=false ."
   },
@@ -22,7 +22,6 @@
   },
   "devDependencies": {
     "@types/node": "catalog:",
-    "@workspace/tsconfig": "workspace:*",
     "rolldown": "^1.2.4",
     "tsx": "catalog:",
     "typescript": "catalog:"
