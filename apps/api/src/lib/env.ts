@@ -6,4 +6,5 @@ export const env = {
   PORT: Number(process.env.PORT ?? "3000"),
   NODE_ENV: process.env.NODE_ENV ?? "development",
   BETTER_AUTH_SECRET: process.env.BETTER_AUTH_SECRET ?? "",
+  REDIS_URL: process.env.REDIS_URL ?? "",
 }
