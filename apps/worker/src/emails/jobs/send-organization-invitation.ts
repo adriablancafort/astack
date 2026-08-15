@@ -1,3 +1,7 @@
+import sendEmail from "@workspace/email/send"
+import AcceptOrganizationInvitationEmail from "@workspace/email/templates/accept-organization-invitation"
+import { env } from "@/lib/env"
+
 export type SendOrganizationInvitationPayload = {
   to: string
   url: string
@@ -7,5 +11,13 @@ export type SendOrganizationInvitationPayload = {
 export async function sendOrganizationInvitation(
   payload: SendOrganizationInvitationPayload
 ) {
-  console.log("send-organization-invitation", payload)
+  await sendEmail(
+    env.EMAIL_FROM,
+    payload.to,
+    "Accept invitation to join " + payload.organizationName,
+    AcceptOrganizationInvitationEmail({
+      url: payload.url,
+      organizationName: payload.organizationName,
+    })
+  )
 }
