@@ -19,6 +19,7 @@
     "@workspace/shared": "workspace:*",
     "@workspace/ui": "workspace:*",
     "better-auth": "catalog:",
+    "cn": "catalog:",
     "lucide-react": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:",
