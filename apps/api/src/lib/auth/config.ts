@@ -5,6 +5,10 @@ import { lastLoginMethod, organization } from "better-auth/plugins"
 import { db } from "@workspace/db/client"
 import * as schema from "@workspace/db/schema/auth"
 import { ac, admin, member, owner } from "@workspace/shared/auth/roles"
+import type {
+  SendOrganizationInvitationPayload,
+  SendResetPasswordPayload,
+} from "@workspace/shared/jobs/emails/types"
 import { env } from "@/lib/env"
 import { emailsQueue } from "@/lib/queues"
 
@@ -25,7 +29,7 @@ export const auth = betterAuth({
         to: data.user.email,
         name: data.user.name,
         url: data.url,
-      })
+      } satisfies SendResetPasswordPayload)
     },
   },
   plugins: [
@@ -43,7 +47,7 @@ export const auth = betterAuth({
           to: data.email,
           url: inviteLink,
           organizationName: data.organization.name,
-        })
+        } satisfies SendOrganizationInvitationPayload)
       },
     }),
     lastLoginMethod({
