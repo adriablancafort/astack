@@ -6,7 +6,7 @@ import {
   ownerAc,
 } from "better-auth/plugins/organization/access"
 
-export const statement = {
+const statement = {
   ...defaultStatements,
   todo: ["create", "update", "delete"],
 }
@@ -18,16 +18,18 @@ export const owner = ac.newRole({
   todo: ["create", "update", "delete"],
 })
 
-export const admin = ac.newRole({
-  ...adminAc.statements,
-  todo: ["create", "update", "delete"],
-})
-
-export const member = ac.newRole({
-  ...memberAc.statements,
-  todo: [],
-})
-
-export const roles = { owner, admin, member }
-
-export type RoleKeys = keyof typeof roles
+export const defaultRoles = {
+  admin: {
+    displayName: "Admin",
+    permission: {
+      ...adminAc.statements,
+      todo: ["create", "update", "delete"],
+    },
+  },
+  member: {
+    displayName: "Member",
+    permission: {
+      ...memberAc.statements,
+    },
+  },
+}

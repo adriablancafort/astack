@@ -6,12 +6,14 @@ import {
   invitation,
   member,
   organization,
+  organizationRole,
   session,
   user,
   verification,
 } from "@workspace/db/schema/auth"
 import { task } from "@workspace/db/schema/tasks"
 import type { TaskStatus } from "@workspace/shared/api/tasks/types"
+import { defaultRoles } from "@workspace/shared/auth/roles"
 
 const DEMO_USER = {
   id: "demo-user",
@@ -97,6 +99,19 @@ async function seed() {
       role: "owner",
       createdAt: new Date(),
     })
+
+    await tx.insert(organizationRole).values(
+      Object.entries(defaultRoles).map(
+        ([role, { displayName, permission }]) => ({
+          id: crypto.randomUUID(),
+          organizationId: DEMO_ORGANIZATION.id,
+          role,
+          displayName,
+          permission: JSON.stringify(permission),
+          createdAt: new Date(),
+        })
+      )
+    )
 
     await tx.insert(task).values(
       DEMO_TASKS.map((demoTask) => ({

@@ -36,6 +36,13 @@
       "when": 1785227453956,
       "tag": "0004_last_login_method",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1793318374567,
+      "tag": "0005_dynamic_access_control",
+      "breakpoints": true
     }
   ]
 }
